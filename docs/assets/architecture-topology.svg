@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" width="100%" height="520">
+  <defs>
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="960" height="520" rx="14" fill="#0B1120" stroke="#1E293B" stroke-width="1.5" />
+
+  <!-- Title Group -->
+  <text x="480" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" fill="#F8FAFC" text-anchor="middle">StudyLock AI System Architecture &amp; Cross-Platform Topology</text>
+  <text x="480" y="58" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="400" fill="#94A3B8" text-anchor="middle">Modular Monolith Core with Platform-Specific OS Restriction Adapters (Section 5)</text>
+
+  <!-- ==================== 1. CLIENTS & ADAPTERS (BOTTOM TIER) ==================== -->
+  <text x="480" y="325" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#60A5FA" text-anchor="middle" letter-spacing="1">CLIENT PLATFORMS &amp; OS RESTRICTION ADAPTERS</text>
+
+  <!-- Web Dashboard -->
+  <g transform="translate(30, 345)" filter="url(#shadow)">
+    <rect width="168" height="145" rx="10" fill="url(#cardBg)" stroke="#334155" stroke-width="1.2" />
+    <rect width="168" height="6" rx="3" fill="#38BDF8" />
+    <text x="84" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#F8FAFC" text-anchor="middle">💻 Web App</text>
+    <text x="84" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600" fill="#38BDF8" text-anchor="middle">Next.js 14 / React</text>
+    <line x1="16" y1="56" x2="152" y2="56" stroke="#1E293B" stroke-width="1" />
+    <text x="84" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• 10 Screen Inventory</text>
+    <text x="84" y="92" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• AI Study Planner</text>
+    <text x="84" y="110" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• Real-Time Analytics</text>
+    <text x="84" y="128" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#94A3B8" text-anchor="middle">Local-First UI State</text>
+  </g>
+
+  <!-- Browser Extension -->
+  <g transform="translate(216, 345)" filter="url(#shadow)">
+    <rect width="168" height="145" rx="10" fill="url(#cardBg)" stroke="#334155" stroke-width="1.2" />
+    <rect width="168" height="6" rx="3" fill="#34D399" />
+    <text x="84" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#F8FAFC" text-anchor="middle">🌐 WebExtension</text>
+    <text x="84" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600" fill="#34D399" text-anchor="middle">Chrome &amp; Edge (MV3)</text>
+    <line x1="16" y1="56" x2="152" y2="56" stroke="#1E293B" stroke-width="1" />
+    <text x="84" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• DNR Rule Engine</text>
+    <text x="84" y="92" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• YouTube/Insta Block</text>
+    <text x="84" y="110" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• Distraction Redirect</text>
+    <text x="84" y="128" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#94A3B8" text-anchor="middle">Dynamic Rule Sets</text>
+  </g>
+
+  <!-- Desktop Helper -->
+  <g transform="translate(402, 345)" filter="url(#shadow)">
+    <rect width="168" height="145" rx="10" fill="url(#cardBg)" stroke="#334155" stroke-width="1.2" />
+    <rect width="168" height="6" rx="3" fill="#818CF8" />
+    <text x="84" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#F8FAFC" text-anchor="middle">🖥️ Desktop Daemon</text>
+    <text x="84" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600" fill="#818CF8" text-anchor="middle">Windows &amp; macOS</text>
+    <line x1="16" y1="56" x2="152" y2="56" stroke="#1E293B" stroke-width="1" />
+    <text x="84" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• Process Scanner</text>
+    <text x="84" y="92" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• App Restrictor</text>
+    <text x="84" y="110" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• Heartbeat Reporter</text>
+    <text x="84" y="128" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#94A3B8" text-anchor="middle">Native OS Adapter</text>
+  </g>
+
+  <!-- Android -->
+  <g transform="translate(588, 345)" filter="url(#shadow)">
+    <rect width="168" height="145" rx="10" fill="url(#cardBg)" stroke="#334155" stroke-width="1.2" />
+    <rect width="168" height="6" rx="3" fill="#A78BFA" />
+    <text x="84" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#F8FAFC" text-anchor="middle">🤖 Android Client</text>
+    <text x="84" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600" fill="#A78BFA" text-anchor="middle">Kotlin + Compose</text>
+    <line x1="16" y1="56" x2="152" y2="56" stroke="#1E293B" stroke-width="1" />
+    <text x="84" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• Foreground Service</text>
+    <text x="84" y="92" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• UsageStats Adapter</text>
+    <text x="84" y="110" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• WorkManager Sync</text>
+    <text x="84" y="128" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#94A3B8" text-anchor="middle">Room SQLite Cache</text>
+  </g>
+
+  <!-- iOS -->
+  <g transform="translate(774, 345)" filter="url(#shadow)">
+    <rect width="156" height="145" rx="10" fill="url(#cardBg)" stroke="#334155" stroke-width="1.2" />
+    <rect width="156" height="6" rx="3" fill="#F472B6" />
+    <text x="78" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#F8FAFC" text-anchor="middle">🍎 iOS Client</text>
+    <text x="78" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600" fill="#F472B6" text-anchor="middle">SwiftUI + ScreenTime</text>
+    <line x1="16" y1="56" x2="140" y2="56" stroke="#1E293B" stroke-width="1" />
+    <text x="78" y="74" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• FamilyControls</text>
+    <text x="78" y="92" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• ManagedSettings</text>
+    <text x="78" y="110" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#CBD5E1" text-anchor="middle">• DeviceActivity API</text>
+    <text x="78" y="128" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#94A3B8" text-anchor="middle">Shield Policy</text>
+  </g>
+
+  <!-- ==================== 2. FASTAPI MONOLITH (MIDDLE TIER) ==================== -->
+  <g transform="translate(140, 80)" filter="url(#shadow)">
+    <rect width="680" height="135" rx="12" fill="url(#cardBg)" stroke="#3B82F6" stroke-width="2" />
+    <path d="M0 12 Q0 0 12 0 L668 0 Q680 0 680 12 L680 32 L0 32 Z" fill="url(#headerGrad)" />
+    <text x="340" y="22" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#FFFFFF" text-anchor="middle">⚡ STUDYLOCK AI FASTAPI MODULAR MONOLITH CORE (/api/v1/...)</text>
+    
+    <!-- Submodules Grid -->
+    <g transform="translate(20, 48)">
+      <!-- Box 1 -->
+      <rect x="0" y="0" width="118" height="32" rx="6" fill="#1E293B" stroke="#475569" stroke-width="1" />
+      <text x="59" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#E2E8F0" text-anchor="middle">🔑 Auth &amp; Users</text>
+
+      <!-- Box 2 -->
+      <rect x="130" y="0" width="118" height="32" rx="6" fill="#1E293B" stroke="#475569" stroke-width="1" />
+      <text x="189" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#E2E8F0" text-anchor="middle">📋 Tasks &amp; Plans</text>
+
+      <!-- Box 3 -->
+      <rect x="260" y="0" width="118" height="32" rx="6" fill="#1E293B" stroke="#475569" stroke-width="1" />
+      <text x="319" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#E2E8F0" text-anchor="middle">📅 Schedules (IANA)</text>
+
+      <!-- Box 4 -->
+      <rect x="390" y="0" width="118" height="32" rx="6" fill="#1E293B" stroke="#475569" stroke-width="1" />
+      <text x="449" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#E2E8F0" text-anchor="middle">⏱️ Focus Sessions</text>
+
+      <!-- Box 5 -->
+      <rect x="520" y="0" width="118" height="32" rx="6" fill="#1E293B" stroke="#475569" stroke-width="1" />
+      <text x="579" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#E2E8F0" text-anchor="middle">🛡️ Block Rules</text>
+    </g>
+
+    <g transform="translate(20, 88)">
+      <!-- Box 6 -->
+      <rect x="0" y="0" width="118" height="32" rx="6" fill="#1E293B" stroke="#475569" stroke-width="1" />
+      <text x="59" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#E2E8F0" text-anchor="middle">🏆 XP Ledger</text>
+
+      <!-- Box 7 -->
+      <rect x="130" y="0" width="118" height="32" rx="6" fill="#1E293B" stroke="#475569" stroke-width="1" />
+      <text x="189" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#E2E8F0" text-anchor="middle">📊 Analytics Engine</text>
+
+      <!-- Box 8 -->
+      <rect x="260" y="0" width="118" height="32" rx="6" fill="#1E293B" stroke="#475569" stroke-width="1" />
+      <text x="319" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#E2E8F0" text-anchor="middle">🔄 Delta Sync Engine</text>
+
+      <!-- Box 9 -->
+      <rect x="390" y="0" width="118" height="32" rx="6" fill="#1E293B" stroke="#475569" stroke-width="1" />
+      <text x="449" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#E2E8F0" text-anchor="middle">📱 Device Heartbeat</text>
+
+      <!-- Box 10 -->
+      <rect x="520" y="0" width="118" height="32" rx="6" fill="#1E293B" stroke="#475569" stroke-width="1" />
+      <text x="579" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#E2E8F0" text-anchor="middle">🔒 Privacy &amp; Purge</text>
+    </g>
+  </g>
+
+  <!-- ==================== 3. DATA & STORAGE (UPPER TIER) ==================== -->
+  <g transform="translate(180, 230)">
+    <!-- PostgreSQL / SQLite -->
+    <rect x="0" y="0" width="180" height="48" rx="8" fill="#1E293B" stroke="#10B981" stroke-width="1.5" />
+    <text x="90" y="22" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#34D399" text-anchor="middle">🐘 PostgreSQL / SQLite</text>
+    <text x="90" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#94A3B8" text-anchor="middle">Relational Schema &amp; Ledgers</text>
+
+    <!-- Redis / Worker -->
+    <rect x="210" y="0" width="180" height="48" rx="8" fill="#1E293B" stroke="#EF4444" stroke-width="1.5" />
+    <text x="300" y="22" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#F87171" text-anchor="middle">⚡ Redis &amp; Async Worker</text>
+    <text x="300" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#94A3B8" text-anchor="middle">Notification Reminders &amp; Queues</text>
+
+    <!-- Sync Outbox -->
+    <rect x="420" y="0" width="180" height="48" rx="8" fill="#1E293B" stroke="#F59E0B" stroke-width="1.5" />
+    <text x="510" y="22" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#FBBF24" text-anchor="middle">📦 Durable Outbox</text>
+    <text x="510" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#94A3B8" text-anchor="middle">Offline Delta Log &amp; Tombstones</text>
+  </g>
+
+  <!-- Connectors from Clients to Monolith -->
+  <g stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.6">
+    <line x1="114" y1="345" x2="300" y2="215" />
+    <line x1="300" y1="345" x2="400" y2="215" />
+    <line x1="486" y1="345" x2="480" y2="215" />
+    <line x1="672" y1="345" x2="560" y2="215" />
+    <line x1="852" y1="345" x2="660" y2="215" />
+  </g>
+</svg>

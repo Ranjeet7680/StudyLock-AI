@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 480" width="100%" height="480">
+  <defs>
+    <linearGradient id="boxBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <filter id="fsmShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#60A5FA" />
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#34D399" />
+    </marker>
+    <marker id="arrowAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#FBBF24" />
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#F87171" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="480" rx="14" fill="#0B1120" stroke="#1E293B" stroke-width="1.5" />
+
+  <!-- Title -->
+  <text x="480" y="36" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" fill="#F8FAFC" text-anchor="middle">Focus Session Deterministic State Machine (Section 7)</text>
+  <text x="480" y="56" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="400" fill="#94A3B8" text-anchor="middle">Timestamp-Based Elapsed Duration &amp; Monotonic Transition Lifecycle</text>
+
+  <!-- STATE: PLANNED -->
+  <g transform="translate(60, 110)" filter="url(#fsmShadow)">
+    <rect width="130" height="60" rx="10" fill="url(#boxBg)" stroke="#64748B" stroke-width="1.5" />
+    <text x="65" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#E2E8F0" text-anchor="middle">PLANNED</text>
+    <text x="65" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#94A3B8" text-anchor="middle">Scheduled block</text>
+  </g>
+
+  <!-- Arrow Planned -> Starting -->
+  <path d="M 190 140 L 250 140" fill="none" stroke="#60A5FA" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="220" y="132" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#94A3B8" text-anchor="middle">start</text>
+
+  <!-- STATE: STARTING -->
+  <g transform="translate(255, 110)" filter="url(#fsmShadow)">
+    <rect width="130" height="60" rx="10" fill="url(#boxBg)" stroke="#38BDF8" stroke-width="1.5" />
+    <text x="65" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#38BDF8" text-anchor="middle">STARTING</text>
+    <text x="65" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#94A3B8" text-anchor="middle">Apply OS rules</text>
+  </g>
+
+  <!-- Arrow Starting -> Focusing -->
+  <path d="M 385 140 L 445 140" fill="none" stroke="#60A5FA" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="415" y="132" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#94A3B8" text-anchor="middle">rules applied</text>
+
+  <!-- STATE: FOCUSING (Core Active State) -->
+  <g transform="translate(450, 95)" filter="url(#fsmShadow)">
+    <rect width="150" height="90" rx="12" fill="url(#boxBg)" stroke="#3B82F6" stroke-width="2.5" />
+    <rect width="150" height="6" rx="3" fill="#3B82F6" />
+    <text x="75" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="800" fill="#60A5FA" text-anchor="middle">⏱️ FOCUSING</text>
+    <text x="75" y="52" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#F8FAFC" text-anchor="middle">Timer Active</text>
+    <text x="75" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#34D399" text-anchor="middle">● Restrictions Enforced</text>
+  </g>
+
+  <!-- STATE: PAUSED (Below Focusing) -->
+  <g transform="translate(450, 255)" filter="url(#fsmShadow)">
+    <rect width="150" height="70" rx="10" fill="url(#boxBg)" stroke="#F59E0B" stroke-width="1.8" />
+    <text x="75" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#FBBF24" text-anchor="middle">⏸️ PAUSED</text>
+    <text x="75" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#E2E8F0" text-anchor="middle">Track pause delta</text>
+    <text x="75" y="60" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#94A3B8" text-anchor="middle">Interruptions count++</text>
+  </g>
+
+  <!-- Bidirectional Arrows: FOCUSING <-> PAUSED -->
+  <path d="M 505 185 L 505 250" fill="none" stroke="#FBBF24" stroke-width="2" marker-end="url(#arrowAmber)" />
+  <text x="475" y="222" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#FBBF24" text-anchor="middle">pause</text>
+
+  <path d="M 545 250 L 545 188" fill="none" stroke="#60A5FA" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="575" y="222" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#60A5FA" text-anchor="middle">resume</text>
+
+  <!-- STATE: DEGRADED -->
+  <g transform="translate(255, 255)" filter="url(#fsmShadow)">
+    <rect width="130" height="70" rx="10" fill="url(#boxBg)" stroke="#EC4899" stroke-width="1.5" />
+    <text x="65" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#F472B6" text-anchor="middle">DEGRADED</text>
+    <text x="65" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#E2E8F0" text-anchor="middle">Partial Enforcement</text>
+    <text x="65" y="60" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#94A3B8" text-anchor="middle">Transparent warning</text>
+  </g>
+  <path d="M 320 170 L 320 250" fill="none" stroke="#F472B6" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arrow)" />
+
+  <!-- STATE: COMPLETED (Terminal Green) -->
+  <g transform="translate(710, 95)" filter="url(#fsmShadow)">
+    <rect width="180" height="90" rx="12" fill="url(#boxBg)" stroke="#10B981" stroke-width="2.5" />
+    <rect width="180" height="6" rx="3" fill="#10B981" />
+    <text x="90" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="800" fill="#34D399" text-anchor="middle">🎉 COMPLETED</text>
+    <text x="90" y="52" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#F8FAFC" text-anchor="middle">Validation &amp; Reward</text>
+    <text x="90" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#34D399" text-anchor="middle">Mints XP to Ledger</text>
+  </g>
+
+  <!-- Arrow Focusing -> Completed -->
+  <path d="M 600 140 L 705 140" fill="none" stroke="#34D399" stroke-width="2.5" marker-end="url(#arrowGreen)" />
+  <text x="652" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700" fill="#34D399" text-anchor="middle">finish (>=80%)</text>
+
+  <!-- STATE: CANCELLED (Emergency Exit Red) -->
+  <g transform="translate(710, 255)" filter="url(#fsmShadow)">
+    <rect width="180" height="70" rx="10" fill="url(#boxBg)" stroke="#EF4444" stroke-width="1.8" />
+    <text x="90" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#F87171" text-anchor="middle">⚠️ CANCELLED</text>
+    <text x="90" y="46" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#E2E8F0" text-anchor="middle">Emergency Exit Path</text>
+    <text x="90" y="60" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#94A3B8" text-anchor="middle">Neutral exit logging</text>
+  </g>
+
+  <!-- Arrow Focusing -> Cancelled -->
+  <path d="M 590 175 L 705 265" fill="none" stroke="#F87171" stroke-width="1.8" stroke-dasharray="4,4" marker-end="url(#arrowRed)" />
+  <text x="665" y="215" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#F87171" text-anchor="middle">exit early</text>
+
+  <!-- ==================== TIMER CORRECTNESS CALLOUT ==================== -->
+  <g transform="translate(60, 365)" filter="url(#fsmShadow)">
+    <rect width="840" height="85" rx="10" fill="#111827" stroke="#1F2937" stroke-width="1.5" />
+    <text x="24" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#60A5FA">📐 Timer Correctness Algorithm (Section 7.2):</text>
+    <text x="24" y="50" font-family="JetBrains Mono, monospace" font-size="12" fill="#E2E8F0">Net Focus Seconds = max(0, (Current Time - Started At) - Cumulative Paused Seconds)</text>
+    <text x="24" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#94A3B8">Reconstructed after process death or system reboot without counter drift. Prevents reward fraud or lost study sessions.</text>
+  </g>
+</svg>
