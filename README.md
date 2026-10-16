@@ -15,6 +15,12 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" /></a>
 </p>
 
+<p align="center">
+  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FRanjeet7680%2FStudyLock-AI"><img src="https://vercel.com/button" alt="Deploy with Vercel" /></a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/Ranjeet7680/StudyLock-AI/wiki"><img src="https://img.shields.io/badge/Documentation-Complete%20Wiki%20(30%20Diagrams)-8B5CF6?style=for-the-badge&logo=gitbook&logoColor=white" alt="StudyLock AI Wiki (30 Diagrams)" height="32" /></a>
+</p>
+
 ---
 
 ## 🏛️ System Architecture

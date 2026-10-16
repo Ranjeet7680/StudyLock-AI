@@ -1,0 +1,14 @@
+{
+  "name": "studylock-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StudyLock AI — Intelligent Cross-Platform Focus Engine & Study Productivity Platform",
+  "scripts": {
+    "build": "echo 'Build ready for Vercel deployment'",
+    "start": "python apps/web/server.py",
+    "test": "pytest tests/ -v"
+  },
+  "keywords": ["studylock", "focus", "deep-work", "productivity", "fastapi", "nextjs"],
+  "author": "StudyLock AI Team",
+  "license": "MIT"
+}

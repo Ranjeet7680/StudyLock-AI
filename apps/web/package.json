@@ -1,13 +1,12 @@
 {
-  "name": "web",
+  "name": "studylock-ai-web",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "StudyLock AI Web Dashboard",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "echo 'StudyLock AI Web Dashboard ready for deployment'",
+    "start": "python server.py"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+  "keywords": ["studylock", "productivity", "focus", "dashboard"],
+  "author": "StudyLock AI Team",
+  "license": "MIT"
 }
