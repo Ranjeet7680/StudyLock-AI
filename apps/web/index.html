@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyLock AI — Intelligent Focus & Study Productivity Platform</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">🛡️</div>
+        <div class="brand-text">
+          <span class="brand-title">StudyLock AI</span>
+          <span class="brand-subtitle">Cross-Platform Focus Engine</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-view="home">
+          <span class="nav-icon">🏠</span> Home Dashboard
+        </button>
+        <button class="nav-item" data-view="focus">
+          <span class="nav-icon">⏱️</span> Focus Room
+          <span class="live-pill" id="navLiveIndicator" style="display: none;">LIVE</span>
+        </button>
+        <button class="nav-item" data-view="planner">
+          <span class="nav-icon">📅</span> Planner & Calendar
+        </button>
+        <button class="nav-item" data-view="tasks">
+          <span class="nav-icon">✅</span> Tasks & Deadlines
+        </button>
+        <button class="nav-item" data-view="blocklist">
+          <span class="nav-icon">🛡️</span> Blocklist & Rules
+        </button>
+        <button class="nav-item" data-view="analytics">
+          <span class="nav-icon">📊</span> Analytics & Trends
+        </button>
+        <button class="nav-item" data-view="rewards">
+          <span class="nav-icon">🏆</span> Rewards & Ledger
+        </button>
+        <button class="nav-item" data-view="devices">
+          <span class="nav-icon">📱</span> Device Health
+        </button>
+        <button class="nav-item" data-view="privacy">
+          <span class="nav-icon">🔒</span> Privacy & Settings
+        </button>
+      </nav>
+
+      <div class="sidebar-user">
+        <div class="user-avatar" id="userAvatar">AS</div>
+        <div class="user-info">
+          <div class="user-name" id="userNameDisplay">Alex Student</div>
+          <div class="user-level" id="userLevelDisplay">Level 1 • 25 XP</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="page-title" id="pageTitle">Home Dashboard</h1>
+          <p class="page-desc" id="pageSubtitle">Overview of your daily focus target, routines, and task queue.</p>
+        </div>
+        <div class="topbar-right">
+          <div class="status-indicator">
+            <span class="status-dot dot-active"></span>
+            <span id="globalEnforcementState">Adapter: ACTIVE (Windows)</span>
+          </div>
+          <button class="btn btn-primary" id="topbarStartFocusBtn">⚡ Quick Focus</button>
+        </div>
+      </header>
+
+      <!-- View Containers -->
+      <div class="content-scroll">
+        <!-- 1. HOME DASHBOARD -->
+        <section class="view-panel active" id="view-home">
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-label">Today's Focus Time</span>
+                <span class="metric-icon">⏳</span>
+              </div>
+              <div class="metric-value" id="homeTodayMinutes">50 <span class="unit">min</span></div>
+              <div class="metric-progress-bg">
+                <div class="metric-progress-bar" id="homeProgressBar" style="width: 42%;"></div>
+              </div>
+              <div class="metric-subtext">Goal: 120 min (42% completed)</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-label">Study Streak</span>
+                <span class="metric-icon">🔥</span>
+              </div>
+              <div class="metric-value">3 <span class="unit">days</span></div>
+              <div class="metric-subtext green-text">Rest day forgiveness enabled</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-label">XP Ledger Balance</span>
+                <span class="metric-icon">✨</span>
+              </div>
+              <div class="metric-value" id="homeTotalXp">145 <span class="unit">XP</span></div>
+              <div class="metric-subtext">Level 1 Scholar</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-label">Protected Endpoints</span>
+                <span class="metric-icon">🛡️</span>
+              </div>
+              <div class="metric-value">8 <span class="unit">rules</span></div>
+              <div class="metric-subtext">YouTube, Instagram, Discord...</div>
+            </div>
+          </div>
+
+          <div class="dashboard-columns">
+            <!-- Left: Next Scheduled Block & Quick Action -->
+            <div class="dash-card">
+              <div class="card-title">Next Scheduled Focus Block</div>
+              <div class="schedule-callout">
+                <div class="schedule-time-badge">14:00 - 14:45</div>
+                <div class="schedule-detail">
+                  <div class="schedule-name">Distributed Systems Lab Review</div>
+                  <div class="schedule-meta">45 Minutes • High Priority • Strict Mode Enabled</div>
+                </div>
+                <button class="btn btn-primary" onclick="app.launchSessionFromTask('Distributed Systems Lab Review', 45)">Start Now</button>
+              </div>
+
+              <div class="card-title" style="margin-top: 24px;">Recommended Study Tasks (AI Planner)</div>
+              <div class="task-compact-list" id="homePriorityTasks">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+
+            <!-- Right: Activity Radar & Integrity Notice -->
+            <div class="dash-card">
+              <div class="card-title">Enforcement & Integrity Status</div>
+              <div class="integrity-box">
+                <div class="integrity-row">
+                  <span class="integrity-label">Browser Filtering</span>
+                  <span class="badge badge-active">Active (MV3 Extension)</span>
+                </div>
+                <div class="integrity-row">
+                  <span class="integrity-label">Desktop Background Helper</span>
+                  <span class="badge badge-active">Connected (Windows)</span>
+                </div>
+                <div class="integrity-row">
+                  <span class="integrity-label">Offline Outbox Ledger</span>
+                  <span class="badge badge-neutral">0 Pending Sync</span>
+                </div>
+                <div class="integrity-row">
+                  <span class="integrity-label">Emergency Exit Path</span>
+                  <span class="badge badge-neutral">Always Discoverable</span>
+                </div>
+              </div>
+
+              <div class="quote-card">
+                "Honest enforcement: We show precisely which platforms and sites are protected, and never claim a distraction is blocked unless verified by your OS adapter."
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. FOCUS ROOM -->
+        <section class="view-panel" id="view-focus">
+          <div class="focus-room-layout">
+            <div class="focus-main-card">
+              <div class="focus-status-bar">
+                <span class="state-badge" id="focusStateBadge">STATE: FOCUSING</span>
+                <span class="enforcement-badge" id="focusEnforcementBadge">🛡️ RESTRICTIONS ENFORCED</span>
+              </div>
+
+              <div class="focus-task-info">
+                <div class="task-subject-tag" id="focusTaskSubject">Computer Science</div>
+                <h2 class="focus-task-title" id="focusTaskTitle">Finish Distributed Systems Lab</h2>
+              </div>
+
+              <div class="focus-timer-container">
+                <div class="focus-timer-digits" id="focusTimerDigits">25:00</div>
+                <div class="focus-timer-sublabel" id="focusTimerSublabel">25-minute deep focus block</div>
+              </div>
+
+              <div class="focus-controls">
+                <button class="btn btn-secondary btn-lg" id="focusPauseBtn">⏸️ Pause Session</button>
+                <button class="btn btn-primary btn-lg" id="focusFinishBtn">✅ Complete & Claim XP</button>
+                <button class="btn btn-danger btn-lg" id="focusEmergencyExitBtn">⚠️ Emergency Exit</button>
+              </div>
+
+              <div class="interruption-counter">
+                Interruptions recorded: <span id="focusInterruptionCount">0</span>
+              </div>
+            </div>
+
+            <div class="focus-sidebar-card">
+              <div class="card-title">Session Protection Active</div>
+              <p class="card-desc">During this session, attempts to visit the following destinations will be intercepted by your StudyLock adapter:</p>
+              
+              <ul class="protected-list">
+                <li><span class="dot-red"></span> youtube.com & youtu.be</li>
+                <li><span class="dot-red"></span> instagram.com</li>
+                <li><span class="dot-red"></span> discord.exe & steam.exe</li>
+                <li><span class="dot-red"></span> reddit.com</li>
+                <li><span class="dot-red"></span> x.com & twitter.com</li>
+              </ul>
+
+              <div class="strict-mode-box">
+                <div class="strict-title">🔒 Strict Mode Friction</div>
+                <p class="strict-desc">Exiting before 80% planned time will cancel XP issuance. An emergency exit is always available in the controls above.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. PLANNER & CALENDAR -->
+        <section class="view-panel" id="view-planner">
+          <div class="planner-layout">
+            <div class="planner-controls-bar">
+              <div class="planner-title-group">
+                <h3>Weekly Timetable</h3>
+                <span class="tz-badge" id="plannerTimezoneBadge">Timezone: Asia/Kolkata</span>
+              </div>
+              <div class="planner-actions">
+                <button class="btn btn-secondary" id="detectConflictsBtn">🔍 Run Conflict Check</button>
+                <button class="btn btn-primary" id="addScheduleBtn">+ Add Study Routine</button>
+              </div>
+            </div>
+
+            <div class="calendar-grid">
+              <div class="calendar-day-col">
+                <div class="day-header">Monday</div>
+                <div class="cal-block" style="top: 60px; height: 90px;">
+                  <div class="cal-block-title">Deep Math Review</div>
+                  <div class="cal-block-time">09:00 - 10:30</div>
+                </div>
+              </div>
+              <div class="calendar-day-col">
+                <div class="day-header">Tuesday</div>
+                <div class="cal-block" style="top: 120px; height: 60px;">
+                  <div class="cal-block-title">Distributed Systems Lab</div>
+                  <div class="cal-block-time">11:00 - 12:00</div>
+                </div>
+              </div>
+              <div class="calendar-day-col today">
+                <div class="day-header">Wednesday (Today)</div>
+                <div class="cal-block active-block" style="top: 180px; height: 90px;">
+                  <div class="cal-block-title">Algorithm Problem Set</div>
+                  <div class="cal-block-time">14:00 - 15:30</div>
+                  <span class="pin-icon">📌 User Pinned</span>
+                </div>
+              </div>
+              <div class="calendar-day-col">
+                <div class="day-header">Thursday</div>
+                <div class="cal-block" style="top: 60px; height: 60px;">
+                  <div class="cal-block-title">Operating Systems Study</div>
+                  <div class="cal-block-time">09:00 - 10:00</div>
+                </div>
+              </div>
+              <div class="calendar-day-col">
+                <div class="day-header">Friday</div>
+                <div class="cal-block" style="top: 150px; height: 90px;">
+                  <div class="cal-block-title">Project Sprint & Commit</div>
+                  <div class="cal-block-time">13:00 - 14:30</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Smart Planning Suggestions -->
+            <div class="dash-card" style="margin-top: 24px;">
+              <div class="card-title">AI Planner Suggested Slots</div>
+              <div id="plannerSuggestionsContainer">
+                <!-- Injected via app.js -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. TASKS & DEADLINES -->
+        <section class="view-panel" id="view-tasks">
+          <div class="tasks-toolbar">
+            <div class="tasks-filters">
+              <button class="filter-btn active" data-filter="all">All Tasks</button>
+              <button class="filter-btn" data-filter="todo">To Do</button>
+              <button class="filter-btn" data-filter="done">Completed</button>
+            </div>
+            <button class="btn btn-primary" id="openNewTaskModalBtn">+ New Task</button>
+          </div>
+
+          <div class="tasks-table-container">
+            <table class="tasks-table">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Task Title</th>
+                  <th>Subject</th>
+                  <th>Priority</th>
+                  <th>Est. Time</th>
+                  <th>Due Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tasksTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 5. BLOCKLIST & RULES -->
+        <section class="view-panel" id="view-blocklist">
+          <div class="blocklist-layout">
+            <div class="blocklist-left">
+              <div class="dash-card">
+                <div class="card-title">Active Distraction Rules</div>
+                <p class="card-desc">Rules configured here apply across supported platforms (browser extension, desktop helper, and mobile).</p>
+                
+                <div class="rules-table-container">
+                  <table class="rules-table">
+                    <thead>
+                      <tr>
+                        <th>Type</th>
+                        <th>Target</th>
+                        <th>Action</th>
+                        <th>Status</th>
+                        <th>Controls</th>
+                      </tr>
+                    </thead>
+                    <tbody id="rulesTableBody">
+                      <!-- Populated via JS -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="add-rule-inline">
+                  <h4>+ Add New Rule</h4>
+                  <div class="rule-inputs">
+                    <select id="newRuleType" class="form-input">
+                      <option value="domain">Domain / Website</option>
+                      <option value="app_package">Desktop / App Process</option>
+                      <option value="url_pattern">URL Wildcard</option>
+                    </select>
+                    <input type="text" id="newRuleValue" placeholder="e.g. twitter.com or game.exe" class="form-input">
+                    <select id="newRuleAction" class="form-input">
+                      <option value="block">Block</option>
+                      <option value="allow">Allow (Override)</option>
+                    </select>
+                    <button class="btn btn-primary" id="saveRuleBtn">Add Rule</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="blocklist-right">
+              <!-- Live Simulator -->
+              <div class="dash-card">
+                <div class="card-title">🔍 Rule Evaluation Simulator</div>
+                <p class="card-desc">Test URL or app package to verify precedence and exact adapter action (Spec Section 6.3).</p>
+                <div class="sim-input-group">
+                  <input type="text" id="simCandidateInput" placeholder="https://www.youtube.com/watch?v=123" class="form-input">
+                  <button class="btn btn-secondary" id="simTestBtn">Simulate Match</button>
+                </div>
+                <div class="sim-result-box" id="simResultBox">
+                  Enter a candidate URL or process name to test.
+                </div>
+              </div>
+
+              <!-- YouTube & Instagram Presets -->
+              <div class="dash-card" style="margin-top: 16px;">
+                <div class="card-title">Quick Presets (Section 6.4)</div>
+                <div class="preset-buttons">
+                  <button class="preset-btn" onclick="app.addPreset('youtube.com')">▶️ Block YouTube & youtu.be</button>
+                  <button class="preset-btn" onclick="app.addPreset('instagram.com')">📸 Block Instagram</button>
+                  <button class="preset-btn" onclick="app.addPreset('tiktok.com')">🎵 Block TikTok</button>
+                  <button class="preset-btn" onclick="app.addPreset('discord.exe')">💬 Block Discord App</button>
+                  <button class="preset-btn" onclick="app.addPreset('steam.exe')">🎮 Block Steam Games</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. ANALYTICS & TRENDS -->
+        <section class="view-panel" id="view-analytics">
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-label">7-Day Focus Minutes</div>
+              <div class="metric-value" id="anaTotalMinutes">245 <span class="unit">min</span></div>
+              <div class="metric-subtext">Across 8 completed sessions</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Session Completion Rate</div>
+              <div class="metric-value">91.4<span class="unit">%</span></div>
+              <div class="metric-subtext green-text">+4.2% from last week</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Task On-Time Rate</div>
+              <div class="metric-value">88.0<span class="unit">%</span></div>
+              <div class="metric-subtext">No overdue critical tasks</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Avg. Interruption Rate</div>
+              <div class="metric-value">0.4 <span class="unit">/ session</span></div>
+              <div class="metric-subtext">Deep focus quality score: High</div>
+            </div>
+          </div>
+
+          <div class="dash-card" style="margin-top: 24px;">
+            <div class="card-title">Daily Focus Distribution (Past 7 Days)</div>
+            <div class="bar-chart-container" id="analyticsBarChart">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <div class="dashboard-columns" style="margin-top: 24px;">
+            <div class="dash-card">
+              <div class="card-title">Study Time by Subject</div>
+              <div class="subject-breakdown" id="analyticsSubjectBreakdown">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+
+            <div class="dash-card">
+              <div class="card-title">Privacy-Preserving Reporting Notice</div>
+              <p class="card-desc">
+                StudyLock AI aggregates validated focus minutes and task completion.
+                Raw URLs, visited titles, and sensitive keystrokes are never logged or stored.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. REWARDS & LEDGER -->
+        <section class="view-panel" id="view-rewards">
+          <div class="rewards-banner">
+            <div class="rewards-avatar">🏆</div>
+            <div class="rewards-banner-info">
+              <h2>Level <span id="rewardLevelNumber">1</span> Scholar</h2>
+              <div class="level-progress-track">
+                <div class="level-progress-fill" id="rewardLevelProgressFill" style="width: 45%;"></div>
+              </div>
+              <div class="rewards-banner-stats">
+                <span>Total XP: <strong id="rewardTotalXpDisplay">145 XP</strong></span>
+                <span>Next Level: <strong id="rewardNextXpDisplay">200 XP</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-columns" style="margin-top: 24px;">
+            <div class="dash-card">
+              <div class="card-title">Achievements Catalog</div>
+              <div class="achievements-grid" id="achievementsGrid">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <div class="dash-card">
+              <div class="card-title">Cryptographic Reward Ledger (Spec Section 10)</div>
+              <p class="card-desc">Immutable append-only ledger events with unique idempotency keys.</p>
+              <div class="ledger-list" id="ledgerList">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 8. DEVICE HEALTH & PERMISSIONS -->
+        <section class="view-panel" id="view-devices">
+          <div class="dash-card">
+            <div class="card-title">Connected Devices & Platform Adapters</div>
+            <p class="card-desc">Real-time status of restriction capabilities across your active endpoints.</p>
+
+            <div class="devices-list" id="devicesListContainer">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <div class="dash-card" style="margin-top: 24px;">
+            <div class="card-title">Enforcement Capability Matrix (Spec Section 6.1)</div>
+            <table class="tasks-table">
+              <thead>
+                <tr>
+                  <th>Platform</th>
+                  <th>Primary Adapter</th>
+                  <th>Enforcement Scope</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Windows</td>
+                  <td>Desktop Process Daemon</td>
+                  <td>Process Blocking & Domain Rules</td>
+                  <td><span class="badge badge-active">Supported & Active</span></td>
+                </tr>
+                <tr>
+                  <td>Chrome / Edge</td>
+                  <td>Manifest V3 WebExtension</td>
+                  <td>Domain & Wildcard Redirects</td>
+                  <td><span class="badge badge-active">Supported & Active</span></td>
+                </tr>
+                <tr>
+                  <td>Android</td>
+                  <td>UsageStats & Accessibility</td>
+                  <td>App Restrictions & Time Limits</td>
+                  <td><span class="badge badge-active">Ready for Companion App</span></td>
+                </tr>
+                <tr>
+                  <td>macOS</td>
+                  <td>Native Helper & WebExtension</td>
+                  <td>Process & Browser Blocking</td>
+                  <td><span class="badge badge-active">Supported</span></td>
+                </tr>
+                <tr>
+                  <td>iOS</td>
+                  <td>Screen Time & ManagedSettings</td>
+                  <td>FamilyControls Shields</td>
+                  <td><span class="badge badge-neutral">Requires Entitlement</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 9. PRIVACY & SETTINGS -->
+        <section class="view-panel" id="view-privacy">
+          <div class="dashboard-columns">
+            <div class="dash-card">
+              <div class="card-title">Privacy Controls & Data Sovereignty</div>
+              <p class="card-desc">You own your data. StudyLock operates local-first and collects only the minimum information needed for focus planning.</p>
+
+              <div class="settings-group">
+                <label class="setting-item">
+                  <div>
+                    <div class="setting-label">Local-First Operation</div>
+                    <div class="setting-desc">Store all tasks and sessions offline on this device.</div>
+                  </div>
+                  <input type="checkbox" id="localFirstToggle" checked>
+                </label>
+
+                <label class="setting-item">
+                  <div>
+                    <div class="setting-label">Strict Mode Emergency Friction</div>
+                    <div class="setting-desc">Require confirmation before cancelling an active focus session.</div>
+                  </div>
+                  <input type="checkbox" id="strictModeToggle" checked>
+                </label>
+
+                <label class="setting-item">
+                  <div>
+                    <div class="setting-label">Quiet Hours Notifications</div>
+                    <div class="setting-desc">Suppress study reminders between 22:00 and 07:00.</div>
+                  </div>
+                  <input type="checkbox" id="quietHoursToggle" checked>
+                </label>
+              </div>
+
+              <div class="action-buttons-row">
+                <button class="btn btn-secondary" id="exportDataBtn">📥 Export All Data (JSON)</button>
+                <button class="btn btn-danger" id="deleteAccountBtn">🗑️ Delete Account & Purge Data</button>
+              </div>
+            </div>
+
+            <div class="dash-card">
+              <div class="card-title">Account Preferences</div>
+              <div class="form-group">
+                <label class="form-label">Display Name</label>
+                <input type="text" id="prefDisplayName" class="form-input" value="Alex Student">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Primary Timezone (IANA)</label>
+                <select id="prefTimezone" class="form-input">
+                  <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+                  <option value="America/New_York">America/New_York (EST/EDT)</option>
+                  <option value="America/Los_Angeles">America/Los_Angeles (PST/PDT)</option>
+                  <option value="Europe/London">Europe/London (GMT/BST)</option>
+                  <option value="UTC">UTC</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" id="savePreferencesBtn">Save Preferences</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 10. SESSION SUMMARY MODAL -->
+        <div class="modal-overlay" id="sessionSummaryModal" style="display: none;">
+          <div class="modal-card">
+            <div class="modal-header">
+              <div class="modal-icon">🎉</div>
+              <h3>Focus Session Completed!</h3>
+            </div>
+            <div class="modal-body">
+              <div class="summary-metric-row">
+                <div class="summary-metric">
+                  <div class="summary-label">Actual Focus Duration</div>
+                  <div class="summary-val" id="summaryDuration">25 min 00 sec</div>
+                </div>
+                <div class="summary-metric">
+                  <div class="summary-label">XP Awarded</div>
+                  <div class="summary-val green-text" id="summaryXp">+25 XP</div>
+                </div>
+              </div>
+              <div class="summary-detail-box">
+                <div id="summaryReason">Focus session completed successfully.</div>
+                <div id="summaryLevelProgress">Current Level: 1 Scholar (145 XP)</div>
+              </div>
+              <div class="form-group" style="margin-top: 16px;">
+                <label class="form-label">Study Notes / Insights</label>
+                <textarea id="summaryNotes" class="form-input" placeholder="What did you learn or complete in this session?" rows="3"></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-primary" id="closeSummaryModalBtn">Save & Return to Dashboard</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- NEW TASK MODAL -->
+        <div class="modal-overlay" id="newTaskModal" style="display: none;">
+          <div class="modal-card">
+            <div class="modal-header">
+              <h3>Create Study Task</h3>
+              <button class="close-btn" id="closeTaskModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label class="form-label">Task Title</label>
+                <input type="text" id="taskModalTitle" class="form-input" placeholder="e.g. Solve Dynamic Programming Set 3">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Subject</label>
+                <input type="text" id="taskModalSubject" class="form-input" placeholder="e.g. Computer Science">
+              </div>
+              <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">Priority</label>
+                  <select id="taskModalPriority" class="form-input">
+                    <option value="1">Low (1)</option>
+                    <option value="2" selected>Medium (2)</option>
+                    <option value="3">High (3)</option>
+                    <option value="4">Critical (4)</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">Estimated Minutes</label>
+                  <input type="number" id="taskModalMinutes" class="form-input" value="45" min="5" max="240">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" id="cancelTaskModalBtn">Cancel</button>
+              <button class="btn btn-primary" id="saveTaskModalBtn">Create Task</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

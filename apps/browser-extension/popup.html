@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>StudyLock AI</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #0B1120;
+      color: #F9FAFB;
+      padding: 16px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1F2937;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #60A5FA;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    .badge-active { background-color: rgba(16, 185, 129, 0.2); color: #34D399; }
+    .badge-inactive { background-color: rgba(107, 114, 128, 0.2); color: #9CA3AF; }
+    .timer-card {
+      background-color: #111827;
+      border: 1px solid #1F2937;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .timer-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 36px;
+      font-weight: 700;
+      color: #F9FAFB;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+    }
+    .timer-label {
+      font-size: 12px;
+      color: #9CA3AF;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background-color: #3B82F6;
+      color: #FFFFFF;
+    }
+    .btn-primary:hover { background-color: #2563EB; }
+    .btn-stop {
+      background-color: #EF4444;
+      color: #FFFFFF;
+    }
+    .btn-stop:hover { background-color: #DC2626; }
+    .rules-list {
+      margin-top: 14px;
+      background: #111827;
+      border-radius: 6px;
+      padding: 10px;
+      border: 1px solid #1F2937;
+    }
+    .rules-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #9CA3AF;
+      margin-bottom: 6px;
+    }
+    .rule-tag {
+      display: inline-block;
+      font-size: 11px;
+      background: #1F2937;
+      color: #E5E7EB;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">
+      <span>🛡️</span> StudyLock AI
+    </div>
+    <span id="statusBadge" class="badge badge-inactive">IDLE</span>
+  </div>
+
+  <div class="timer-card">
+    <div id="timerDisplay" class="timer-display">25:00</div>
+    <div id="timerSubtext" class="timer-label">Standard Focus Session</div>
+  </div>
+
+  <button id="toggleBtn" class="btn btn-primary">Start Focus Session</button>
+
+  <div class="rules-list">
+    <div class="rules-title">Protected Destinations</div>
+    <div id="rulesContainer">
+      <span class="rule-tag">youtube.com</span>
+      <span class="rule-tag">instagram.com</span>
+      <span class="rule-tag">tiktok.com</span>
+      <span class="rule-tag">reddit.com</span>
+      <span class="rule-tag">x.com</span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
