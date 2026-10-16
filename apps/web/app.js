@@ -4,9 +4,29 @@
  */
 
 class StudyLockApp {
-  constructor() {
-    this.apiBase = "http://127.0.0.1:8000/api/v1";
-    this.token = null;
+    // Dynamic API Base URL detection:
+    // 1. URL parameter: ?api=...
+    // 2. LocalStorage override: 'studylock_api_url'
+    // 3. Dev port 3000: http://127.0.0.1:8000/api/v1
+    // 4. Production / Vercel: /api/v1 (origin relative)
+    const urlParams = typeof window !== "undefined" && window.location ? new URLSearchParams(window.location.search) : null;
+    const paramApi = urlParams ? urlParams.get("api") : null;
+    const storedApi = typeof localStorage !== "undefined" ? localStorage.getItem("studylock_api_url") : null;
+
+    if (paramApi) {
+      this.apiBase = paramApi.replace(/\/$/, "");
+      try { localStorage.setItem("studylock_api_url", this.apiBase); } catch (e) {}
+    } else if (storedApi) {
+      this.apiBase = storedApi.replace(/\/$/, "");
+    } else if (typeof window !== "undefined" && window.location && window.location.hostname === "localhost" && window.location.port === "3000") {
+      this.apiBase = "http://127.0.0.1:8000/api/v1";
+    } else if (typeof window !== "undefined" && window.location && window.location.origin && window.location.origin !== "null") {
+      this.apiBase = `${window.location.origin}/api/v1`;
+    } else {
+      this.apiBase = "/api/v1";
+    }
+
+    this.token = typeof localStorage !== "undefined" ? localStorage.getItem("studylock_token") : null;
     this.currentUser = {
       name: "Alex Student",
       email: "alex.student@university.edu",
@@ -83,6 +103,69 @@ class StudyLockApp {
     this.renderAnalytics();
     this.renderDevices();
     this.renderPlannerSuggestions();
+    this.checkApiHealth();
+  }
+
+  // --- API COMMUNICATION & SYNC (Vercel & Local) ---
+  async checkApiHealth() {
+    const dot = document.getElementById("backendStatusDot");
+    const text = document.getElementById("backendStatusText");
+    const badge = document.getElementById("backendStatusBadge");
+
+    // Compute health URL
+    let healthUrl = "/health";
+    if (this.apiBase.startsWith("http")) {
+      try {
+        const u = new URL(this.apiBase);
+        healthUrl = `${u.origin}/health`;
+      } catch (e) {
+        healthUrl = `${this.apiBase}/health`;
+      }
+    }
+
+    try {
+      const res = await fetch(healthUrl, { method: "GET", headers: { "Accept": "application/json" } });
+      if (res.ok) {
+        const data = await res.json();
+        if (dot) dot.style.background = "#10b981"; // green
+        if (text) text.innerText = `API: Online (${data.version || "v1.0.0"})`;
+        if (badge) badge.title = `Connected to ${data.service || "StudyLock AI API"} (${data.environment || "production"})`;
+        this.syncWithBackend();
+        return;
+      }
+    } catch (e) {
+      console.warn("Primary health endpoint unreachable, trying api prefix...", e);
+    }
+
+    try {
+      const res2 = await fetch(`${this.apiBase}/devices/supported-platforms`);
+      if (res2.ok) {
+        if (dot) dot.style.background = "#10b981";
+        if (text) text.innerText = "API: Online (v1.0.0)";
+        this.syncWithBackend();
+        return;
+      }
+    } catch (e) {}
+
+    // Offline / Standalone Fallback
+    if (dot) dot.style.background = "#f59e0b"; // yellow
+    if (text) text.innerText = "API: Standalone Mode";
+    if (badge) badge.title = "Running with offline local storage cache";
+  }
+
+  async syncWithBackend() {
+    try {
+      const res = await fetch(`${this.apiBase}/block-rules/`);
+      if (res.ok) {
+        const serverRules = await res.json();
+        if (Array.isArray(serverRules) && serverRules.length > 0) {
+          this.rules = serverRules;
+          this.renderRules();
+        }
+      }
+    } catch (e) {
+      console.log("Using cached rules", e);
+    }
   }
 
   // --- NAVIGATION ---

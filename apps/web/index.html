@@ -70,9 +70,13 @@
           <p class="page-desc" id="pageSubtitle">Overview of your daily focus target, routines, and task queue.</p>
         </div>
         <div class="topbar-right">
+          <div class="status-indicator" id="backendStatusBadge" title="StudyLock API Connection Status">
+            <span class="status-dot dot-active" id="backendStatusDot" style="background: #10b981;"></span>
+            <span id="backendStatusText">API: Connecting...</span>
+          </div>
           <div class="status-indicator">
             <span class="status-dot dot-active"></span>
-            <span id="globalEnforcementState">Adapter: ACTIVE (Windows)</span>
+            <span id="globalEnforcementState">Adapter: ACTIVE</span>
           </div>
           <button class="btn btn-primary" id="topbarStartFocusBtn">⚡ Quick Focus</button>
         </div>

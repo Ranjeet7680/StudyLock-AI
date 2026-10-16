@@ -27,7 +27,10 @@ from .routers import (
 )
 
 # Auto-create tables on startup (works with both SQLite and Postgres)
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"[StudyLock API] Warning initializing DB tables: {e}")
 
 app = FastAPI(
     title=settings.API_TITLE,
@@ -94,6 +97,26 @@ async def health_check():
         "service": "StudyLock AI API",
         "version": settings.API_VERSION,
         "environment": settings.APP_ENV
+    }
+
+
+@app.get("/", include_in_schema=False)
+async def root_endpoint():
+    import os
+    from fastapi.responses import FileResponse
+    for cand in [
+        os.path.join(os.getcwd(), "public", "index.html"),
+        os.path.join(os.path.dirname(__file__), "..", "..", "..", "public", "index.html"),
+        os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "web", "index.html")
+    ]:
+        if os.path.exists(cand):
+            return FileResponse(cand)
+    return {
+        "service": "StudyLock AI API",
+        "version": settings.API_VERSION,
+        "docs": "/docs",
+        "health": "/health",
+        "api_v1": "/api/v1"
     }
 
 

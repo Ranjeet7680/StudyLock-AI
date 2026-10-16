@@ -17,6 +17,7 @@ build/
 .next/
 out/
 .env.local
+.vercel/
 
 # Testing
 .pytest_cache/

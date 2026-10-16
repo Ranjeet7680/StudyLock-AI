@@ -15,7 +15,11 @@ class Settings(BaseSettings):
     API_PORT: int = 8000
     
     # Database: Supports SQLite for zero-setup local dev & Postgres for production
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./studylock.db")
+    # In Vercel / AWS Lambda serverless environments, root is read-only; use /tmp
+    DATABASE_URL: str = os.getenv(
+        "DATABASE_URL",
+        "sqlite:////tmp/studylock.db" if (os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME")) else "sqlite:///./studylock.db"
+    )
     
     # Security
     SECRET_KEY: str = os.getenv("SECRET_KEY", "studylock-ai-super-secret-key-for-development-2026")

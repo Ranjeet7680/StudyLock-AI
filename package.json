@@ -4,11 +4,18 @@
   "private": true,
   "description": "StudyLock AI — Intelligent Cross-Platform Focus Engine & Study Productivity Platform",
   "scripts": {
-    "build": "echo 'Build ready for Vercel deployment'",
-    "start": "python apps/web/server.py",
+    "build": "node -e \"const fs=require('fs'); if(fs.existsSync('apps/web')){fs.cpSync('apps/web/index.html','public/index.html');fs.cpSync('apps/web/style.css','public/style.css');fs.cpSync('apps/web/app.js','public/app.js');console.log('Synchronized frontend assets to public/');}\"",
     "test": "pytest tests/ -v"
   },
-  "keywords": ["studylock", "focus", "deep-work", "productivity", "fastapi", "nextjs"],
+  "keywords": [
+    "studylock",
+    "focus",
+    "deep-work",
+    "productivity",
+    "fastapi",
+    "python",
+    "serverless"
+  ],
   "author": "StudyLock AI Team",
   "license": "MIT"
 }
