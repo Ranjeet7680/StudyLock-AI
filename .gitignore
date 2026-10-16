@@ -32,3 +32,4 @@ Thumbs.db
 # Local clone of wiki repo
 wiki_repo/
 
+.vercel
