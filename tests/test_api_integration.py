@@ -154,3 +154,48 @@ def test_privacy_export_flow(client, auth_headers):
     assert "user" in data
     assert "tasks" in data
     assert "reward_ledger" in data
+
+
+def test_demo_auth_and_unauthenticated_fallback(client):
+    demo_res = client.post("/api/v1/auth/demo")
+    assert demo_res.status_code == 200
+    assert "access_token" in demo_res.json()
+    assert demo_res.json()["email"] == "demo@studylock.ai"
+
+    # Test that unauthenticated calls fall back cleanly to demo user
+    tasks_res = client.get("/api/v1/tasks")
+    assert tasks_res.status_code == 200
+    assert isinstance(tasks_res.json(), list)
+
+
+def test_active_session_and_complete_alias(client, auth_headers):
+    # Initially no active session
+    active_res = client.get("/api/v1/sessions/active", headers=auth_headers)
+    assert active_res.status_code == 200
+    assert active_res.json()["active"] is False
+
+    # Start session
+    start_res = client.post("/api/v1/sessions/start", headers=auth_headers, json={
+        "planned_minutes": 25
+    })
+    assert start_res.status_code == 201
+    session_id = start_res.json()["session_id"]
+
+    # Active session should now be active
+    active_res2 = client.get("/api/v1/sessions/active", headers=auth_headers)
+    assert active_res2.status_code == 200
+    assert active_res2.json()["active"] is True
+    assert active_res2.json()["session"]["session_id"] == session_id
+
+    # Finish via /complete alias
+    complete_res = client.post(f"/api/v1/sessions/{session_id}/complete", headers=auth_headers, json={
+        "interruption_count": 0
+    })
+    assert complete_res.status_code == 200
+    assert complete_res.json()["status"] == "COMPLETED"
+
+    # Active session should now be False
+    active_res3 = client.get("/api/v1/sessions/active", headers=auth_headers)
+    assert active_res3.status_code == 200
+    assert active_res3.json()["active"] is False
+

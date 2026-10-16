@@ -31,6 +31,33 @@ from packages.schemas.rewards import RewardEngine, RewardEventDef
 router = APIRouter(prefix="/sessions", tags=["Focus Sessions"])
 
 
+@router.get("/active")
+def get_active_session(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    session = db.query(FocusSession).filter(
+        FocusSession.user_id == current_user.id,
+        FocusSession.status.in_(["STARTING", "FOCUSING", "PAUSED", "BREAK", "DEGRADED"])
+    ).first()
+    if not session:
+        return {"active": False, "session": None}
+    return {
+        "active": True,
+        "session": {
+            "session_id": session.id,
+            "status": session.status,
+            "started_at": session.started_at.isoformat() if session.started_at else None,
+            "planned_minutes": session.planned_minutes,
+            "actual_seconds": session.actual_seconds,
+            "paused_seconds": session.paused_seconds,
+            "interruptions": session.interruptions,
+            "enforcement_state": session.enforcement_state,
+            "task_id": session.task_id
+        }
+    }
+
+
 @router.post("/start", response_model=StartSessionResponse, status_code=status.HTTP_201_CREATED)
 def start_session(
     payload: StartSessionRequest,
@@ -192,6 +219,7 @@ def resume_session(
 
 
 @router.post("/{session_id}/finish", response_model=FinishSessionResponse)
+@router.post("/{session_id}/complete", response_model=FinishSessionResponse)
 def finish_session(
     session_id: str,
     payload: FinishSessionRequest,

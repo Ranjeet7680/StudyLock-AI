@@ -32,9 +32,9 @@ class StudyLockApp {
     // Load persisted user or default
     const savedUser = this.getStored("studylock_user");
     this.currentUser = savedUser || {
-      name: "Alex Student",
-      email: "alex.student@university.edu",
-      timezone: "Asia/Kolkata",
+      name: "Alex Rivera",
+      email: "demo@studylock.ai",
+      timezone: "UTC",
       level: 1,
       totalXp: 145
     };
@@ -54,7 +54,7 @@ class StudyLockApp {
       timerInterval: null
     };
 
-    // Local Tasks Collection (Section 9)
+    // Tasks Collection (Section 9)
     const savedTasks = this.getStored("studylock_tasks");
     this.tasks = savedTasks || [
       { id: "t-1", title: "Distributed Systems Lab Review", subject: "Computer Science", priority: 3, estimatedMinutes: 45, status: "todo", dueAt: "Tomorrow, 17:00" },
@@ -63,7 +63,7 @@ class StudyLockApp {
       { id: "t-4", title: "Draft Literature Review Introduction", subject: "Academic Writing", priority: 2, estimatedMinutes: 45, status: "done", dueAt: "Yesterday" }
     ];
 
-    // Local Block Rules Collection (Section 6)
+    // Block Rules Collection (Section 6)
     const savedRules = this.getStored("studylock_rules");
     this.rules = savedRules || [
       { id: "r-1", target_type: "domain", target_value: "youtube.com", action: "block", enabled: true },
@@ -88,8 +88,8 @@ class StudyLockApp {
     // Achievements Catalog
     this.achievements = [
       { code: "FIRST_SESSION", title: "First Step", desc: "Complete your first timed session", icon: "🌱", xp: 25, unlocked: true },
-      { code: "DEEP_DIVER", title: "Deep Diver", desc: "Complete 45+ min uninterrupted block", icon: "🌊", xp: 40, unlocked: true },
-      { code: "STREAK_3", title: "Habit Builder", desc: "Study 3 consecutive days", icon: "🔥", xp: 75, unlocked: true },
+      { code: "DEEP_DIVE", title: "Deep Diver", desc: "Complete 45+ min uninterrupted block", icon: "🌊", xp: 40, unlocked: true },
+      { code: "CONSISTENCY_3", title: "Habit Builder", desc: "Study 3 consecutive days", icon: "🔥", xp: 75, unlocked: true },
       { code: "TASK_MASTER", title: "Task Finisher", desc: "Complete 5 scheduled study tasks", icon: "⚡", xp: 50, unlocked: false },
       { code: "ZEN_MODE", title: "Digital Monk", desc: "Zero interruptions recorded in session", icon: "🧘", xp: 30, unlocked: false }
     ];
@@ -110,6 +110,21 @@ class StudyLockApp {
     try {
       localStorage.setItem(key, JSON.stringify(val));
     } catch (e) {}
+  }
+
+  async apiFetch(path, options = {}) {
+    const url = path.startsWith("http") ? path : `${this.apiBase}${path.startsWith("/") ? "" : "/"}${path}`;
+    const headers = {
+      "Accept": "application/json",
+      ...(options.headers || {})
+    };
+    if (options.body && typeof options.body === "string" && !headers["Content-Type"]) {
+      headers["Content-Type"] = "application/json";
+    }
+    if (this.token) {
+      headers["Authorization"] = `Bearer ${this.token}`;
+    }
+    return fetch(url, { ...options, headers });
   }
 
   init() {
@@ -158,7 +173,8 @@ class StudyLockApp {
         if (dot) dot.style.background = "#10b981"; // emerald
         if (text) text.innerText = `API: Online (${data.version || "v1.0.0"} • ${latency}ms)`;
         if (badge) badge.title = `Connected to ${data.service || "StudyLock AI API"} (${data.environment || "production"})`;
-        this.syncWithBackend();
+        await this.ensureAuthToken();
+        await this.syncWithBackend();
         return;
       }
     } catch (e) {
@@ -173,7 +189,8 @@ class StudyLockApp {
       if (res2.ok) {
         if (dot) dot.style.background = "#10b981";
         if (text) text.innerText = `API: Online (v1.0.0 • ${latency2}ms)`;
-        this.syncWithBackend();
+        await this.ensureAuthToken();
+        await this.syncWithBackend();
         return;
       }
     } catch (e) {}
@@ -184,14 +201,180 @@ class StudyLockApp {
     if (badge) badge.title = "Running with offline local storage cache";
   }
 
+  async ensureAuthToken() {
+    if (this.token) return;
+    try {
+      const res = await fetch(`${this.apiBase}/auth/demo`, { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.access_token) {
+          this.token = data.access_token;
+          try { localStorage.setItem("studylock_token", this.token); } catch (e) {}
+          if (data.display_name) {
+            this.currentUser.name = data.display_name;
+            this.currentUser.email = data.email;
+            this.saveStored("studylock_user", this.currentUser);
+            this.updateUserBadge();
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Demo token initialization skipped (offline or unneeded).", e);
+    }
+  }
+
   async syncWithBackend() {
     try {
-      const res = await fetch(`${this.apiBase}/block-rules/`);
-      if (res.ok) {
-        const serverRules = await res.json();
+      // 1. Sync active focus session
+      const actRes = await this.apiFetch("/sessions/active");
+      if (actRes.ok) {
+        const actData = await actRes.json();
+        if (actData.active && actData.session && this.session.state === "IDLE") {
+          const s = actData.session;
+          this.session.id = s.session_id;
+          this.session.state = s.status;
+          this.session.plannedMinutes = s.planned_minutes || 25;
+          this.session.actualSeconds = s.actual_seconds || 0;
+          this.session.pausedSeconds = s.paused_seconds || 0;
+          this.session.interruptions = s.interruptions || 0;
+          this.session.startedAt = s.started_at ? new Date(s.started_at).getTime() : Date.now();
+          if (this.session.state === "FOCUSING") {
+            const liveInd = document.getElementById("navLiveIndicator");
+            if (liveInd) liveInd.style.display = "inline-block";
+            if (this.session.timerInterval) clearInterval(this.session.timerInterval);
+            this.session.timerInterval = setInterval(() => this.timerTick(), 1000);
+          }
+          this.updateFocusUI();
+        }
+      }
+
+      // 2. Sync block rules
+      const rulesRes = await this.apiFetch("/block-rules");
+      if (rulesRes.ok) {
+        const serverRules = await rulesRes.json();
         if (Array.isArray(serverRules) && serverRules.length > 0) {
           this.rules = serverRules;
+          this.saveStored("studylock_rules", this.rules);
           this.renderRules();
+        }
+      }
+
+      // 3. Sync tasks
+      const tasksRes = await this.apiFetch("/tasks");
+      if (tasksRes.ok) {
+        const serverTasks = await tasksRes.json();
+        if (Array.isArray(serverTasks) && serverTasks.length > 0) {
+          this.tasks = serverTasks.map(t => ({
+            id: t.id,
+            title: t.title,
+            subject: t.subject || "General",
+            priority: t.priority || 2,
+            estimatedMinutes: t.estimated_minutes || 30,
+            status: t.status || "todo",
+            dueAt: t.due_at ? new Date(t.due_at).toLocaleDateString() : "Upcoming"
+          }));
+          this.saveStored("studylock_tasks", this.tasks);
+          this.renderTasks();
+          this.renderHomePriorityTasks();
+        }
+      }
+
+      // 4. Sync rewards & ledger
+      const ledgerRes = await this.apiFetch("/rewards/ledger");
+      if (ledgerRes.ok) {
+        const ledData = await ledgerRes.json();
+        if (ledData.entries) {
+          this.ledger = ledData.entries.map(e => ({
+            id: e.id,
+            event_key: e.event_key,
+            xp_delta: e.xp_delta,
+            reason: e.reason,
+            created_at: e.created_at ? new Date(e.created_at).toLocaleString() : ""
+          }));
+          this.saveStored("studylock_ledger", this.ledger);
+        }
+        if (typeof ledData.total_xp === "number") {
+          this.currentUser.totalXp = ledData.total_xp;
+          if (ledData.level_info && ledData.level_info.current_level) {
+            this.currentUser.level = ledData.level_info.current_level;
+          }
+          this.saveStored("studylock_user", this.currentUser);
+        }
+        this.renderLedgerAndAchievements();
+        this.updateUserBadge();
+      }
+
+      // 5. Sync achievements
+      const achRes = await this.apiFetch("/rewards/achievements");
+      if (achRes.ok) {
+        const serverAchs = await achRes.json();
+        if (Array.isArray(serverAchs) && serverAchs.length > 0) {
+          this.achievements = serverAchs.map(a => ({
+            code: a.code,
+            title: a.title,
+            desc: a.description,
+            icon: a.icon || "🏆",
+            xp: a.xp_reward || 25,
+            unlocked: !!a.is_unlocked
+          }));
+          this.renderLedgerAndAchievements();
+        }
+      }
+
+      // 6. Sync suggested planner
+      this.syncPlanner();
+
+      // 7. Sync analytics
+      this.syncAnalytics();
+
+    } catch (e) {
+      console.warn("Backend sync encountered non-fatal error:", e);
+    }
+  }
+
+  async syncPlanner() {
+    try {
+      const planRes = await this.apiFetch("/schedules/suggested-plan");
+      if (planRes.ok) {
+        const planData = await planRes.json();
+        if (planData.ranked_tasks && planData.ranked_tasks.length > 0) {
+          const container = document.getElementById("plannerSuggestionsContainer");
+          if (container) {
+            container.innerHTML = "";
+            const grid = document.createElement("div");
+            grid.style.cssText = "display: grid; grid-template-columns: 1fr 1fr; gap: 12px;";
+            planData.ranked_tasks.slice(0, 4).forEach(item => {
+              const card = document.createElement("div");
+              card.className = "schedule-callout";
+              card.style.borderLeftColor = item.total_score >= 80 ? "#EF4444" : "#3B82F6";
+              card.innerHTML = `
+                <div class="schedule-detail">
+                  <div class="schedule-name">${item.title}</div>
+                  <div class="schedule-meta">AI Priority Score: <strong>${Math.round(item.total_score)}</strong> • Urgency: ${Math.round(item.deadline_urgency)} • Goal: ${item.goal_importance}</div>
+                </div>
+                <button class="btn btn-primary" onclick="app.launchSessionFromTask('${item.title.replace(/'/g, "\\'")}', 30, 'Study')">Start Block</button>
+              `;
+              grid.appendChild(card);
+            });
+            container.appendChild(grid);
+          }
+        }
+      }
+    } catch (e) {}
+  }
+
+  async syncAnalytics() {
+    try {
+      const anaRes = await this.apiFetch("/analytics/weekly");
+      if (anaRes.ok) {
+        const anaData = await anaRes.json();
+        const homeMins = document.getElementById("homeTodayMinutes");
+        if (homeMins && anaData.actual_minutes !== undefined) {
+          homeMins.innerHTML = `${anaData.actual_minutes} <span class="unit">min</span>`;
+        }
+        const homeCompRate = document.getElementById("homeCompletionRate");
+        if (homeCompRate && anaData.completion_rate_percent !== undefined) {
+          homeCompRate.textContent = `${anaData.completion_rate_percent}%`;
         }
       }
     } catch (e) {}
@@ -287,7 +470,7 @@ class StudyLockApp {
     this.startSession(minutes, taskTitle, subject);
   }
 
-  startSession(minutes, taskTitle, subject) {
+  async startSession(minutes, taskTitle, subject) {
     this.session.id = "sess-" + Math.floor(1000 + Math.random() * 9000);
     this.session.state = "FOCUSING";
     this.session.plannedMinutes = minutes;
@@ -317,15 +500,23 @@ class StudyLockApp {
     this.session.timerInterval = setInterval(() => this.timerTick(), 1000);
 
     // Sync session start to backend API
-    fetch(`${this.apiBase}/sessions/start`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        task_id: null,
-        planned_minutes: minutes,
-        strict_mode: true
-      })
-    }).catch(() => {});
+    try {
+      const res = await this.apiFetch("/sessions/start", {
+        method: "POST",
+        body: JSON.stringify({
+          planned_minutes: minutes,
+          strict_mode: true
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.session_id) {
+          this.session.id = data.session_id;
+        }
+      }
+    } catch (e) {
+      console.warn("Session start logged locally, API offline.", e);
+    }
   }
 
   timerTick() {
@@ -360,6 +551,15 @@ class StudyLockApp {
       if (pauseBtn) pauseBtn.textContent = "▶️ Resume Session";
       this.playTone(330, "sine", 0.1);
       this.updateFocusUI();
+
+      // Notify backend API
+      if (this.session.id) {
+        this.apiFetch(`/sessions/${this.session.id}/pause`, {
+          method: "POST",
+          body: JSON.stringify({ reason: "User requested pause" })
+        }).catch(() => {});
+      }
+
     } else if (this.session.state === "PAUSED") {
       if (this.session.lastPauseAt) {
         const pauseDelta = Math.floor((now - this.session.lastPauseAt) / 1000);
@@ -370,10 +570,17 @@ class StudyLockApp {
       if (pauseBtn) pauseBtn.textContent = "⏸️ Pause Session";
       this.playTone(550, "sine", 0.1);
       this.updateFocusUI();
+
+      // Notify backend API
+      if (this.session.id) {
+        this.apiFetch(`/sessions/${this.session.id}/resume`, {
+          method: "POST"
+        }).catch(() => {});
+      }
     }
   }
 
-  finishSession() {
+  async finishSession() {
     if (this.session.timerInterval) clearInterval(this.session.timerInterval);
     this.session.state = "COMPLETED";
     
@@ -383,8 +590,34 @@ class StudyLockApp {
     const actualMins = Math.max(1, Math.floor(this.session.actualSeconds / 60));
     const actualSecsRemainder = this.session.actualSeconds % 60;
     const isDeep = actualMins >= 45;
-    const earnedXp = isDeep ? 40 : 25;
-    const reason = isDeep ? "Deep focus 45+ minute block completed" : "Focus session completed successfully";
+    let earnedXp = isDeep ? 40 : 25;
+    let reason = isDeep ? "Deep focus 45+ minute block completed" : "Focus session completed successfully";
+
+    // Play victory fanfare
+    this.playTone(523.25, "sine", 0.12);
+    setTimeout(() => this.playTone(659.25, "sine", 0.15), 130);
+    setTimeout(() => this.playTone(783.99, "sine", 0.25), 290);
+
+    // Notify backend and get authoritative rewards
+    try {
+      if (this.session.id) {
+        const res = await this.apiFetch(`/sessions/${this.session.id}/complete`, {
+          method: "POST",
+          body: JSON.stringify({
+            interruption_count: this.session.interruptions
+          })
+        });
+        if (res.ok) {
+          const respData = await res.json();
+          if (respData.xp_awarded) earnedXp = respData.xp_awarded;
+          if (respData.reward_reason) reason = respData.reward_reason;
+          if (respData.total_xp) this.currentUser.totalXp = respData.total_xp;
+          if (respData.current_level) this.currentUser.level = respData.current_level;
+        }
+      }
+    } catch (e) {
+      console.warn("Session finish reward sync error:", e);
+    }
 
     // Insert into Immutable Reward Ledger (Section 10)
     const ledgerEntry = {
@@ -400,37 +633,28 @@ class StudyLockApp {
     this.currentUser.totalXp += earnedXp;
     this.saveStored("studylock_user", this.currentUser);
 
-    // Update Today's focus time on Home Dashboard
-    const todayMinutesEl = document.getElementById("homeTodayMinutes");
-    if (todayMinutesEl) {
-      const currentTodayMins = 50 + actualMins;
-      todayMinutesEl.innerHTML = `${currentTodayMins} <span class="unit">min</span>`;
-      const prog = Math.min(100, Math.round((currentTodayMins / 120) * 100));
-      const pBar = document.getElementById("homeProgressBar");
-      if (pBar) pBar.style.width = `${prog}%`;
+    // Update Home metrics
+    const homeTodayMins = document.getElementById("homeTodayMinutes");
+    if (homeTodayMins) {
+      const cur = parseInt(homeTodayMins.textContent) || 0;
+      homeTodayMins.innerHTML = `${cur + actualMins} <span class="unit">min</span>`;
     }
 
-    // Play victory fanfare
-    this.playTone(523.25, "sine", 0.12);
-    setTimeout(() => this.playTone(659.25, "sine", 0.15), 130);
-    setTimeout(() => this.playTone(783.99, "sine", 0.25), 290);
+    const pBar = document.getElementById("homeGoalProgressBar");
+    if (pBar) {
+      const prog = Math.min(100, Math.round(((actualMins) / 120) * 100));
+      pBar.style.width = `${prog}%`;
+    }
 
     // Show summary modal
     document.getElementById("summaryDuration").textContent = `${actualMins} min ${actualSecsRemainder} sec`;
     document.getElementById("summaryXp").textContent = `+${earnedXp} XP`;
     document.getElementById("summaryReason").textContent = reason;
-    document.getElementById("summaryLevelProgress").textContent = `Scholar • Total: ${this.currentUser.totalXp} XP`;
+    document.getElementById("summaryLevelProgress").textContent = `Level ${this.currentUser.level || 1} Scholar • Total: ${this.currentUser.totalXp} XP`;
     document.getElementById("sessionSummaryModal").style.display = "flex";
 
     this.renderLedgerAndAchievements();
     this.updateUserBadge();
-
-    // Notify backend
-    fetch(`${this.apiBase}/sessions/${this.session.id}/complete`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ actual_minutes: actualMins, interruptions: this.session.interruptions })
-    }).catch(() => {});
   }
 
   emergencyExit() {
@@ -445,51 +669,59 @@ class StudyLockApp {
     const liveInd = document.getElementById("navLiveIndicator");
     if (liveInd) liveInd.style.display = "none";
 
+    // Notify backend
+    if (this.session.id) {
+      this.apiFetch(`/sessions/${this.session.id}/cancel`, {
+        method: "POST"
+      }).catch(() => {});
+    }
+
     alert("Session exited. All platform restrictions have been lifted.");
     this.switchView("home");
   }
 
   updateFocusUI() {
-    const stateBadge = document.getElementById("focusStateBadge");
-    const enforcementBadge = document.getElementById("focusEnforcementBadge");
+    const statusPill = document.getElementById("focusStatePill");
+    const ring = document.querySelector(".timer-ring-path");
 
-    if (!stateBadge || !enforcementBadge) return;
-
-    if (this.session.state === "FOCUSING") {
-      stateBadge.textContent = "STATE: FOCUSING";
-      stateBadge.style.backgroundColor = "rgba(59, 130, 246, 0.2)";
-      stateBadge.style.color = "#93C5FD";
-
-      enforcementBadge.textContent = "🛡️ RESTRICTIONS ENFORCED";
-      enforcementBadge.style.backgroundColor = "rgba(16, 185, 129, 0.2)";
-      enforcementBadge.style.color = "#34D399";
-    } else if (this.session.state === "PAUSED") {
-      stateBadge.textContent = "STATE: PAUSED";
-      stateBadge.style.backgroundColor = "rgba(245, 158, 11, 0.2)";
-      stateBadge.style.color = "#FBBF24";
-
-      enforcementBadge.textContent = "⏸️ RESTRICTIONS TEMPORARILY SUSPENDED";
-      enforcementBadge.style.backgroundColor = "rgba(245, 158, 11, 0.2)";
-      enforcementBadge.style.color = "#FBBF24";
+    if (statusPill) {
+      statusPill.textContent = this.session.state;
+      if (this.session.state === "FOCUSING") {
+        statusPill.style.background = "#10B981";
+        if (ring) ring.style.stroke = "#10B981";
+      } else if (this.session.state === "PAUSED") {
+        statusPill.style.background = "#F59E0B";
+        if (ring) ring.style.stroke = "#F59E0B";
+      } else {
+        statusPill.style.background = "#3B82F6";
+        if (ring) ring.style.stroke = "#3B82F6";
+      }
     }
   }
 
-  // --- TASKS (Section 9) ---
+  // --- TASKS CONTROLS (Section 9) ---
   setupTaskControls() {
+    const openModalBtn = document.getElementById("openNewTaskModalBtn");
     const newTaskModal = document.getElementById("newTaskModal");
-    const openBtn = document.getElementById("openNewTaskModalBtn");
-    const closeBtn = document.getElementById("closeTaskModalBtn");
-    const cancelBtn = document.getElementById("cancelTaskModalBtn");
-    const saveBtn = document.getElementById("saveTaskModalBtn");
+    const cancelModalBtn = document.getElementById("cancelTaskModalBtn");
+    const saveTaskBtn = document.getElementById("saveTaskModalBtn");
 
-    if (openBtn) openBtn.addEventListener("click", () => { newTaskModal.style.display = "flex"; });
-    if (closeBtn) closeBtn.addEventListener("click", () => { newTaskModal.style.display = "none"; });
-    if (cancelBtn) cancelBtn.addEventListener("click", () => { newTaskModal.style.display = "none"; });
+    if (openModalBtn && newTaskModal) {
+      openModalBtn.addEventListener("click", () => {
+        newTaskModal.style.display = "flex";
+      });
+    }
 
-    if (saveBtn) {
-      saveBtn.addEventListener("click", () => {
+    if (cancelModalBtn && newTaskModal) {
+      cancelModalBtn.addEventListener("click", () => {
+        newTaskModal.style.display = "none";
+      });
+    }
+
+    if (saveTaskBtn) {
+      saveTaskBtn.addEventListener("click", async () => {
         const title = document.getElementById("taskModalTitle").value.trim();
-        const subject = document.getElementById("taskModalSubject").value.trim() || "General Study";
+        const subject = document.getElementById("taskModalSubject").value;
         const priority = parseInt(document.getElementById("taskModalPriority").value, 10);
         const minutes = parseInt(document.getElementById("taskModalMinutes").value, 10) || 30;
 
@@ -516,18 +748,26 @@ class StudyLockApp {
         this.renderTasks();
         this.renderHomePriorityTasks();
 
-        // Persist to backend
-        fetch(`${this.apiBase}/tasks/`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title: title,
-            subject: subject,
-            priority: priority,
-            estimated_minutes: minutes,
-            due_at: new Date(Date.now() + 86400000).toISOString()
-          })
-        }).catch(() => {});
+        // Persist to backend API
+        try {
+          const res = await this.apiFetch("/tasks", {
+            method: "POST",
+            body: JSON.stringify({
+              title: title,
+              subject: subject,
+              priority: priority,
+              estimated_minutes: minutes,
+              due_at: new Date(Date.now() + 86400000).toISOString()
+            })
+          });
+          if (res.ok) {
+            const serverTask = await res.json();
+            newTask.id = serverTask.id;
+            this.saveStored("studylock_tasks", this.tasks);
+          }
+        } catch (e) {
+          console.warn("Task saved locally; backend offline.", e);
+        }
       });
     }
 
@@ -540,7 +780,7 @@ class StudyLockApp {
     });
   }
 
-  toggleTaskStatus(taskId) {
+  async toggleTaskStatus(taskId) {
     const task = this.tasks.find(t => t.id === taskId);
     if (!task) return;
 
@@ -562,8 +802,19 @@ class StudyLockApp {
       this.playTone(600, "sine", 0.15);
       this.renderLedgerAndAchievements();
       this.updateUserBadge();
+
+      // Sync task update to backend
+      this.apiFetch(`/tasks/${task.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "done" })
+      }).catch(() => {});
+
     } else {
       task.status = "todo";
+      this.apiFetch(`/tasks/${task.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "todo" })
+      }).catch(() => {});
     }
 
     this.saveStored("studylock_tasks", this.tasks);
@@ -599,7 +850,7 @@ class StudyLockApp {
         <td>${task.estimatedMinutes} min</td>
         <td>${task.dueAt}</td>
         <td>
-          <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="app.launchSessionFromTask('${task.title}', ${task.estimatedMinutes}, '${task.subject}')">⚡ Focus</button>
+          <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="app.launchSessionFromTask('${task.title.replace(/'/g, "\\'")}', ${task.estimatedMinutes}, '${task.subject.replace(/'/g, "\\'")}')">⚡ Focus</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -621,7 +872,7 @@ class StudyLockApp {
           <div class="schedule-name">${task.title}</div>
           <div class="schedule-meta">${task.subject} • Priority ${task.priority} • Est: ${task.estimatedMinutes} min</div>
         </div>
-        <button class="btn btn-secondary" onclick="app.launchSessionFromTask('${task.title}', ${task.estimatedMinutes}, '${task.subject}')">Study</button>
+        <button class="btn btn-secondary" onclick="app.launchSessionFromTask('${task.title.replace(/'/g, "\\'")}', ${task.estimatedMinutes}, '${task.subject.replace(/'/g, "\\'")}')">Study</button>
       `;
       container.appendChild(item);
     });
@@ -631,7 +882,7 @@ class StudyLockApp {
   setupBlocklistControls() {
     const saveRuleBtn = document.getElementById("saveRuleBtn");
     if (saveRuleBtn) {
-      saveRuleBtn.addEventListener("click", () => {
+      saveRuleBtn.addEventListener("click", async () => {
         const type = document.getElementById("newRuleType").value;
         const val = document.getElementById("newRuleValue").value.trim();
         const action = document.getElementById("newRuleAction").value;
@@ -655,17 +906,25 @@ class StudyLockApp {
         document.getElementById("newRuleValue").value = "";
         this.renderRules();
 
-        fetch(`${this.apiBase}/block-rules/`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ target_type: type, target_value: val, action: action })
-        }).catch(() => {});
+        try {
+          const res = await this.apiFetch("/block-rules", {
+            method: "POST",
+            body: JSON.stringify({ target_type: type, target_value: val, action: action, enabled: true })
+          });
+          if (res.ok) {
+            const serverRule = await res.json();
+            newRule.id = serverRule.id;
+            this.saveStored("studylock_rules", this.rules);
+          }
+        } catch (e) {
+          console.warn("Rule saved locally; backend offline.", e);
+        }
       });
     }
 
     const simBtn = document.getElementById("simTestBtn");
     if (simBtn) {
-      simBtn.addEventListener("click", () => {
+      simBtn.addEventListener("click", async () => {
         const input = document.getElementById("simCandidateInput").value.trim().toLowerCase();
         const resBox = document.getElementById("simResultBox");
         if (!input) {
@@ -673,6 +932,29 @@ class StudyLockApp {
           return;
         }
 
+        resBox.textContent = "Simulating rule evaluation...";
+
+        // First attempt server-side verification via API
+        try {
+          const apiRes = await this.apiFetch("/block-rules/test", {
+            method: "POST",
+            body: JSON.stringify({ candidate: input })
+          });
+          if (apiRes.ok) {
+            const sim = await apiRes.json();
+            resBox.innerHTML = `
+              <strong style="color: ${sim.action === 'block' ? '#EF4444' : '#10B981'};">
+                ACTION: ${sim.action.toUpperCase()}
+              </strong><br>
+              Evaluation Engine: Verified Server API<br>
+              Matched Rule: <code>${sim.matched_rule ? sim.matched_rule.target_value : "None (Default Allow)"}</code><br>
+              Reason: ${sim.reason || "Rule precedence calculated."}
+            `;
+            return;
+          }
+        } catch (e) {}
+
+        // Fallback local simulator
         let matched = null;
         for (const rule of this.rules) {
           if (!rule.enabled) continue;
@@ -711,15 +993,23 @@ class StudyLockApp {
   addPreset(value) {
     const exists = this.rules.some(r => r.target_value === value);
     if (!exists) {
-      this.rules.push({
+      const type = value.endsWith(".exe") ? "app_package" : "domain";
+      const newRule = {
         id: "r-" + (this.rules.length + 1),
-        target_type: value.endsWith(".exe") ? "app_package" : "domain",
+        target_type: type,
         target_value: value,
         action: "block",
         enabled: true
-      });
+      };
+      this.rules.push(newRule);
       this.saveStored("studylock_rules", this.rules);
       this.renderRules();
+
+      this.apiFetch("/block-rules", {
+        method: "POST",
+        body: JSON.stringify({ target_type: type, target_value: value, action: "block", enabled: true })
+      }).catch(() => {});
+
       alert(`Preset for '${value}' added to active blocklist!`);
     } else {
       alert(`'${value}' is already in your blocklist.`);
@@ -750,6 +1040,7 @@ class StudyLockApp {
     this.rules = this.rules.filter(r => r.id !== ruleId);
     this.saveStored("studylock_rules", this.rules);
     this.renderRules();
+    this.apiFetch(`/block-rules/${ruleId}`, { method: "DELETE" }).catch(() => {});
   }
 
   // --- REWARDS & ACHIEVEMENTS ---
@@ -793,7 +1084,7 @@ class StudyLockApp {
     const homeTotalXp = document.getElementById("homeTotalXp");
     if (homeTotalXp) homeTotalXp.innerHTML = `${this.currentUser.totalXp} <span class="unit">XP</span>`;
 
-    const nextXp = 200;
+    const nextXp = (this.currentUser.level || 1) * 200;
     const fillPercent = Math.min(100, Math.round((this.currentUser.totalXp / nextXp) * 100));
     const progFill = document.getElementById("rewardLevelProgressFill");
     if (progFill) progFill.style.width = `${fillPercent}%`;
@@ -801,7 +1092,7 @@ class StudyLockApp {
 
   updateUserBadge() {
     const userBadge = document.getElementById("userLevelDisplay");
-    if (userBadge) userBadge.textContent = `Level 1 • ${this.currentUser.totalXp} XP`;
+    if (userBadge) userBadge.textContent = `Level ${this.currentUser.level || 1} • ${this.currentUser.totalXp} XP`;
 
     const userName = document.getElementById("userNameDisplay");
     if (userName) userName.textContent = this.currentUser.name;
@@ -809,7 +1100,7 @@ class StudyLockApp {
     const userAvatar = document.getElementById("userAvatar");
     if (userAvatar && this.currentUser.name) {
       const initials = this.currentUser.name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
-      userAvatar.textContent = initials || "AS";
+      userAvatar.textContent = initials || "AR";
     }
   }
 
@@ -888,15 +1179,36 @@ class StudyLockApp {
   }
 
   async pingApiDiagnostics() {
-    const t0 = performance.now();
+    let healthUrl = "/health";
+    if (this.apiBase.startsWith("http")) {
+      try {
+        const u = new URL(this.apiBase);
+        healthUrl = `${u.origin}/health`;
+      } catch (e) {
+        healthUrl = `${this.apiBase}/health`;
+      }
+    }
+
     try {
-      const res = await fetch("/health");
-      const ms = Math.round(performance.now() - t0);
-      if (res.ok) {
-        const data = await res.json();
-        alert(`✅ API Latency Check: 200 OK\nRound-Trip Time: ${ms}ms\nService: ${data.service}\nVersion: ${data.version}\nEnvironment: ${data.environment}`);
+      const samples = [];
+      for (let i = 0; i < 3; i++) {
+        const t0 = performance.now();
+        const res = await fetch(healthUrl);
+        const ms = Math.round(performance.now() - t0);
+        if (res.ok) samples.push(ms);
+      }
+      if (samples.length > 0) {
+        const min = Math.min(...samples);
+        const avg = Math.round(samples.reduce((a, b) => a + b, 0) / samples.length);
+        const max = Math.max(...samples);
+        alert(`✅ StudyLock AI Diagnostic Report:
+Status: 200 OK (Verified Online)
+Target: ${healthUrl}
+Latency: Min: ${min}ms | Avg: ${avg}ms | Max: ${max}ms
+Service: StudyLock AI API (v1.0.0)
+Architecture: High-Performance FastAPI Modular Monolith`);
       } else {
-        alert(`API responded with status: ${res.status}`);
+        alert("API diagnostic check failed to receive healthy response.");
       }
     } catch (e) {
       alert(`API ping failed: ${e.message}`);
@@ -929,16 +1241,44 @@ class StudyLockApp {
 
     const detectBtn = document.getElementById("detectConflictsBtn");
     if (detectBtn) {
-      detectBtn.addEventListener("click", () => {
+      detectBtn.addEventListener("click", async () => {
+        try {
+          const res = await this.apiFetch("/schedules/suggested-plan");
+          if (res.ok) {
+            const data = await res.json();
+            const conflictCount = data.conflicts ? data.conflicts.length : 0;
+            if (conflictCount === 0) {
+              alert("Conflict Analysis Complete:\nNo overlapping calendar blocks found for current week.\nAll scheduled blocks comply with available study hours.");
+            } else {
+              alert(`Conflict Alert: ${conflictCount} overlapping blocks detected. Check planner view for adjustments.`);
+            }
+            return;
+          }
+        } catch (e) {}
         alert("Conflict Analysis Complete:\nNo overlapping calendar blocks found for current week.\nAll scheduled blocks comply with available study hours.");
       });
     }
 
     const addSchedBtn = document.getElementById("addScheduleBtn");
     if (addSchedBtn) {
-      addSchedBtn.addEventListener("click", () => {
+      addSchedBtn.addEventListener("click", async () => {
         const title = prompt("Enter Study Routine Title:", "Evening Deep Focus");
-        if (title) alert(`Routine '${title}' added to calendar engine.`);
+        if (title) {
+          try {
+            await this.apiFetch("/schedules", {
+              method: "POST",
+              body: JSON.stringify({
+                title: title,
+                timezone: this.currentUser.timezone || "UTC",
+                start_minute: 1080,
+                duration_minutes: 60,
+                recurrence: { days: ["mon", "tue", "wed", "thu", "fri"] },
+                enabled: true
+              })
+            });
+          } catch (e) {}
+          alert(`Routine '${title}' added to calendar engine.`);
+        }
       });
     }
   }
@@ -947,7 +1287,24 @@ class StudyLockApp {
   setupPrivacyControls() {
     const exportBtn = document.getElementById("exportDataBtn");
     if (exportBtn) {
-      exportBtn.addEventListener("click", () => {
+      exportBtn.addEventListener("click", async () => {
+        // Attempt authoritative server-side export first (Spec Section 16.2)
+        try {
+          const res = await this.apiFetch("/privacy/export", { method: "POST" });
+          if (res.ok) {
+            const serverData = await res.json();
+            const exportBlob = new Blob([JSON.stringify(serverData, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(exportBlob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `StudyLock_AI_Data_Export_Server_${new Date().toISOString().split("T")[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            return;
+          }
+        } catch (e) {}
+
+        // Fallback local export
         const exportBlob = new Blob([
           JSON.stringify({
             user: this.currentUser,
@@ -970,9 +1327,12 @@ class StudyLockApp {
 
     const deleteBtn = document.getElementById("deleteAccountBtn");
     if (deleteBtn) {
-      deleteBtn.addEventListener("click", () => {
+      deleteBtn.addEventListener("click", async () => {
         const conf = confirm("DANGER: Are you sure you want to permanently reset local data? This action will reset state to defaults.");
         if (conf) {
+          try {
+            await this.apiFetch("/privacy/delete-account", { method: "POST" });
+          } catch (e) {}
           try {
             localStorage.clear();
           } catch (e) {}

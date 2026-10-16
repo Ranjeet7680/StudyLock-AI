@@ -61,3 +61,33 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.post("/demo", response_model=AuthTokenResponse)
+def demo_token(db: Session = Depends(get_db)):
+    email = "demo@studylock.ai"
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        user = User(
+            id="usr-demo-001",
+            email=email,
+            password_hash=hash_password("DemoPassword123!"),
+            display_name="Alex Rivera",
+            timezone="UTC"
+        )
+        db.add(user)
+        try:
+            db.commit()
+            db.refresh(user)
+        except Exception:
+            db.rollback()
+            user = db.query(User).filter(User.email == email).first()
+
+    token = create_access_token({"sub": user.id, "email": user.email})
+    return AuthTokenResponse(
+        access_token=token,
+        user_id=user.id,
+        display_name=user.display_name,
+        email=user.email
+    )
+
