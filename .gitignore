@@ -33,3 +33,4 @@ Thumbs.db
 wiki_repo/
 
 .vercel
+.env*
