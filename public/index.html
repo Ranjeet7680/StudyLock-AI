@@ -190,6 +190,12 @@
               </div>
 
               <div class="focus-timer-container">
+                <div class="focus-preset-pills" style="display: flex; gap: 8px; justify-content: center; margin-bottom: 16px;">
+                  <button class="preset-pill" id="pill-15" onclick="app.setFocusPreset(15)">15m</button>
+                  <button class="preset-pill active" id="pill-25" onclick="app.setFocusPreset(25)">25m (Pomodoro)</button>
+                  <button class="preset-pill" id="pill-45" onclick="app.setFocusPreset(45)">45m (Deep Focus)</button>
+                  <button class="preset-pill" id="pill-60" onclick="app.setFocusPreset(60)">60m</button>
+                </div>
                 <div class="focus-timer-digits" id="focusTimerDigits">25:00</div>
                 <div class="focus-timer-sublabel" id="focusTimerSublabel">25-minute deep focus block</div>
               </div>
@@ -479,7 +485,10 @@
         <!-- 8. DEVICE HEALTH & PERMISSIONS -->
         <section class="view-panel" id="view-devices">
           <div class="dash-card">
-            <div class="card-title">Connected Devices & Platform Adapters</div>
+            <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+              <span>Connected Devices & Platform Adapters</span>
+              <button class="btn btn-secondary" style="font-size: 12px; padding: 4px 12px;" onclick="app.pingApiDiagnostics()">⚡ Test API Latency Ping</button>
+            </div>
             <p class="card-desc">Real-time status of restriction capabilities across your active endpoints.</p>
 
             <div class="devices-list" id="devicesListContainer">
