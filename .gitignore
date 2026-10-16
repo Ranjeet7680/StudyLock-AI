@@ -27,3 +27,7 @@ htmlcov/
 *.log
 .DS_Store
 Thumbs.db
+
+# Local clone of wiki repo
+wiki_repo/
+
