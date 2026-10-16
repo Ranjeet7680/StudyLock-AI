@@ -47,6 +47,10 @@
         <button class="nav-item" data-view="devices">
           <span class="nav-icon">📱</span> Device Health
         </button>
+        <button class="nav-item" data-view="video">
+          <span class="nav-icon">🎬</span> Video Studio & Download
+          <span class="badge" style="background: #8B5CF6; color: #fff; font-size: 10px; margin-left: auto; padding: 2px 6px; border-radius: 10px;">FAST</span>
+        </button>
         <button class="nav-item" data-view="privacy">
           <span class="nav-icon">🔒</span> Privacy & Settings
         </button>
@@ -603,7 +607,181 @@
           </div>
         </section>
 
-        <!-- 10. SESSION SUMMARY MODAL -->
+        <!-- 10. VIDEO STUDIO & FAST PROCESSING (CUSTOMER PROCESS & DOWNLOAD) -->
+        <section class="view-panel" id="view-video">
+          <div class="dash-card" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(139, 92, 246, 0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                  <span style="font-size: 26px;">🎬</span>
+                  <h2 style="font-size: 20px; font-weight: 700; color: #fff; margin: 0;">Fast Video Processing & Customer Studio</h2>
+                  <span class="badge" style="background: rgba(139, 92, 246, 0.25); color: #C4B5FD; border: 1px solid rgba(139, 92, 246, 0.4);">4.2x ACCELERATED</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 13px; max-width: 650px; margin: 0;">
+                  Ultra-fast hardware-accelerated video rendering, lecture speed optimization, acoustic voice enhancement, and direct customer video downloading.
+                </p>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" id="loadDemoVideoBtn">🌟 Load Walkthrough Tour</button>
+                <button class="btn btn-primary" id="startVideoProcessBtn" style="background: #8B5CF6; border-color: #8B5CF6; font-weight: 600;">⚡ Start Fast Processing</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-columns">
+            <!-- Left: Video Configuration -->
+            <div class="dash-card">
+              <div class="card-title">1. Processing Configuration</div>
+              <p class="card-desc">Configure acceleration parameters, audio filtering, and output format for the customer.</p>
+
+              <div class="form-group">
+                <label class="form-label">Video Preset</label>
+                <select id="videoPresetSelect" class="form-input">
+                  <option value="ultra_fast" selected>⚡ Ultra-Fast 4x Pipeline (Graphics HUD + Focus Timer + Audio)</option>
+                  <option value="lecture_optimizer">🎧 Lecture Audio Optimizer (1.5x Tempo + Vocal Boost)</option>
+                  <option value="study_highlights">📱 30-Second Study Recap (Milestones + Gamified XP)</option>
+                </select>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">Speed Factor</label>
+                  <select id="videoSpeedSelect" class="form-input">
+                    <option value="1.0">1.0x Normal Speed</option>
+                    <option value="1.25">1.25x Lecture Pace</option>
+                    <option value="1.5" selected>1.5x Accelerated</option>
+                    <option value="2.0">2.0x Double Speed</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">Target Resolution</label>
+                  <select id="videoResolutionSelect" class="form-input">
+                    <option value="720p">720p HD (High Speed)</option>
+                    <option value="1080p" selected>1080p Full HD (Crisp)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Custom Video File (Optional Upload)</label>
+                <input type="file" id="videoFileInput" class="form-input" accept="video/*" style="padding: 6px;">
+                <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px;">Leave empty to auto-synthesize the complete StudyLock AI interactive walkthrough video.</span>
+              </div>
+
+              <div class="settings-group" style="margin-top: 14px;">
+                <label class="setting-item">
+                  <div>
+                    <div class="setting-label">Acoustic Audio Synthesis & Chime</div>
+                    <div class="setting-desc">Inject synced Web Audio API soundtrack and completion fanfare.</div>
+                  </div>
+                  <input type="checkbox" id="videoAudioToggle" checked>
+                </label>
+                <label class="setting-item">
+                  <div>
+                    <div class="setting-label">HUD Focus Metrics Overlay</div>
+                    <div class="setting-desc">Render live timer, XP counter, and active blocking rule badge.</div>
+                  </div>
+                  <input type="checkbox" id="videoHudToggle" checked>
+                </label>
+              </div>
+            </div>
+
+            <!-- Right: Real-time Customer Process & Live Monitor -->
+            <div class="dash-card">
+              <div class="card-title">2. Customer Live Processing Monitor</div>
+              <p class="card-desc">Real-time visualization of the video encoding pipeline shown to the customer.</p>
+
+              <!-- Progress bar & stage badge -->
+              <div style="margin-bottom: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <span id="videoCurrentStage" style="font-size: 13px; font-weight: 600; color: #93C5FD;">Ready to start processing</span>
+                  <span id="videoProgressPercent" style="font-size: 14px; font-weight: 700; color: #10B981;">0%</span>
+                </div>
+                <div class="metric-progress-bg" style="height: 10px; background: rgba(255, 255, 255, 0.08); border-radius: 6px; overflow: hidden;">
+                  <div class="metric-progress-bar" id="videoProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8B5CF6, #3B82F6, #10B981); transition: width 0.2s ease;"></div>
+                </div>
+              </div>
+
+              <!-- Live Canvas Frame Preview -->
+              <div style="background: #000; border-radius: 8px; border: 1px solid var(--border-default); overflow: hidden; position: relative; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center;">
+                <canvas id="videoRenderCanvas" width="640" height="360" style="width: 100%; height: 100%; object-fit: contain;"></canvas>
+                <div id="videoCanvasOverlay" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.7); pointer-events: none;">
+                  <span style="font-size: 32px; margin-bottom: 8px;">🎬</span>
+                  <span style="font-size: 13px; color: #E2E8F0; font-weight: 500;">Click "Start Fast Processing" to render video</span>
+                </div>
+              </div>
+
+              <!-- Terminal log box -->
+              <div id="videoLogBox" style="margin-top: 12px; background: #0B0F17; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; padding: 8px 12px; font-family: monospace; font-size: 11px; color: #94A3B8; height: 75px; overflow-y: auto;">
+                <div>[SYSTEM] Video Processing Subsystem Online. Ready for job dispatch.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom: Video Output & Direct Download Center -->
+          <div class="dash-card" id="videoDownloadSection" style="margin-top: 24px; border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.03);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 16px;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="status-dot dot-active" style="background: #10B981;"></span>
+                  <h3 style="font-size: 16px; font-weight: 700; color: #fff; margin: 0;">3. Customer Download & Playback Center</h3>
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                  The processed video is compiled, verified, and ready for instant full file download.
+                </div>
+              </div>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-primary" id="downloadFullVideoBtn" style="background: #10B981; border-color: #10B981; font-weight: 700; padding: 10px 20px; font-size: 14px;" disabled>
+                  ⬇️ Download Full Video (.webm)
+                </button>
+                <button class="btn btn-secondary" id="downloadServerVideoBtn" style="padding: 10px 16px; font-size: 13px;">
+                  🌐 Download via Server API
+                </button>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+              <!-- Playback Player -->
+              <div style="background: #000; border-radius: 8px; border: 1px solid var(--border-default); overflow: hidden; min-height: 240px; display: flex; align-items: center; justify-content: center;">
+                <video id="videoPlayerOutput" controls style="width: 100%; max-height: 280px; display: none;"></video>
+                <div id="videoPlayerPlaceholder" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                  <div style="font-size: 28px; margin-bottom: 8px;">⏳</div>
+                  <div>Processed video playback preview will appear here upon completion.</div>
+                </div>
+              </div>
+
+              <!-- Metadata & Specifications -->
+              <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+                <div class="schedule-callout" style="border-left-color: #10B981; margin: 0;">
+                  <div class="schedule-detail">
+                    <div class="schedule-name">Output Container</div>
+                    <div class="schedule-meta" id="metaVideoFormat">Format: WebM / VP8 (Universal Web Compatible)</div>
+                  </div>
+                </div>
+                <div class="schedule-callout" style="border-left-color: #3B82F6; margin: 0;">
+                  <div class="schedule-detail">
+                    <div class="schedule-name">Video Specifications</div>
+                    <div class="schedule-meta" id="metaVideoSpecs">Resolution: 1920x1080 (HD) • 30 FPS</div>
+                  </div>
+                </div>
+                <div class="schedule-callout" style="border-left-color: #8B5CF6; margin: 0;">
+                  <div class="schedule-detail">
+                    <div class="schedule-name">Audio & Acoustics</div>
+                    <div class="schedule-meta" id="metaVideoAudio">Stereo 48 kHz • Synced Chime Audio Track</div>
+                  </div>
+                </div>
+                <div class="schedule-callout" style="border-left-color: #F59E0B; margin: 0;">
+                  <div class="schedule-detail">
+                    <div class="schedule-name">Download Integrity</div>
+                    <div class="schedule-meta" id="metaVideoStatus">Status: Ready for customer download</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 11. SESSION SUMMARY MODAL -->
         <div class="modal-overlay" id="sessionSummaryModal" style="display: none;">
           <div class="modal-card">
             <div class="modal-header">

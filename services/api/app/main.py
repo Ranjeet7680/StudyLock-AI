@@ -34,6 +34,7 @@ from .routers import (
     analytics,
     sync,
     privacy,
+    video,
 )
 
 # Auto-create tables on startup (works with both SQLite and Postgres)
@@ -182,3 +183,5 @@ app.include_router(rewards.router, prefix=API_V1_PREFIX)
 app.include_router(analytics.router, prefix=API_V1_PREFIX)
 app.include_router(sync.router, prefix=API_V1_PREFIX)
 app.include_router(privacy.router, prefix=API_V1_PREFIX)
+app.include_router(video.router, prefix=API_V1_PREFIX)
+
