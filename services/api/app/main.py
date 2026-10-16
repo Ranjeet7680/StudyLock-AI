@@ -4,9 +4,19 @@ Ref: StudyLock AI Architecture Specification Section 5, 13, 24.1
 """
 import uuid
 import time
+import sys
+import os
+
+# Ensure services/api directory and repo root are in sys.path
+api_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+repo_root = os.path.dirname(api_root)
+for p in (api_root, repo_root):
+    if p and p not in sys.path:
+        sys.path.insert(0, p)
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.exceptions import RequestValidationError
 
 from .config import settings
@@ -102,15 +112,14 @@ async def health_check():
 
 @app.get("/", include_in_schema=False)
 async def root_endpoint():
-    import os
-    from fastapi.responses import FileResponse
     for cand in [
-        os.path.join(os.getcwd(), "public", "index.html"),
-        os.path.join(os.path.dirname(__file__), "..", "..", "..", "public", "index.html"),
-        os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "web", "index.html")
+        os.path.join(api_root, "public", "index.html"),
+        os.path.join(repo_root, "public", "index.html"),
+        os.path.join(repo_root, "apps", "web", "index.html"),
+        os.path.join(os.getcwd(), "public", "index.html")
     ]:
-        if os.path.exists(cand):
-            return FileResponse(cand)
+        if os.path.isfile(cand):
+            return FileResponse(cand, media_type="text/html")
     return {
         "service": "StudyLock AI API",
         "version": settings.API_VERSION,
@@ -118,6 +127,46 @@ async def root_endpoint():
         "health": "/health",
         "api_v1": "/api/v1"
     }
+
+
+@app.get("/style.css", include_in_schema=False)
+async def serve_css():
+    for cand in [
+        os.path.join(api_root, "public", "style.css"),
+        os.path.join(repo_root, "public", "style.css"),
+        os.path.join(repo_root, "apps", "web", "style.css"),
+        os.path.join(os.getcwd(), "public", "style.css")
+    ]:
+        if os.path.isfile(cand):
+            return FileResponse(cand, media_type="text/css")
+    return JSONResponse(status_code=404, content={"error": "Not Found"})
+
+
+@app.get("/app.js", include_in_schema=False)
+async def serve_js():
+    for cand in [
+        os.path.join(api_root, "public", "app.js"),
+        os.path.join(repo_root, "public", "app.js"),
+        os.path.join(repo_root, "apps", "web", "app.js"),
+        os.path.join(os.getcwd(), "public", "app.js")
+    ]:
+        if os.path.isfile(cand):
+            return FileResponse(cand, media_type="application/javascript")
+    return JSONResponse(status_code=404, content={"error": "Not Found"})
+
+
+@app.get("/favicon.svg", include_in_schema=False)
+@app.get("/favicon.ico", include_in_schema=False)
+async def serve_favicon():
+    for cand in [
+        os.path.join(api_root, "public", "favicon.svg"),
+        os.path.join(repo_root, "public", "favicon.svg"),
+        os.path.join(repo_root, "apps", "web", "favicon.svg"),
+        os.path.join(os.getcwd(), "public", "favicon.svg")
+    ]:
+        if os.path.isfile(cand):
+            return FileResponse(cand, media_type="image/svg+xml")
+    return JSONResponse(status_code=404, content={"error": "Not Found"})
 
 
 # Include Routers with /api/v1 prefix (Spec Section 13.1)
